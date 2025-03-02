@@ -9,6 +9,7 @@
 # include <sys/wait.h>
 # include <readline/readline.h>
 # include <readline/history.h>
+# include "libft.h"
 
 # define SINGLE_QUOTE 39
 # define DOUBLE_QUOTE 34
@@ -32,7 +33,8 @@ typedef enum e_token_type
     TK_ENV_VAR,		// '$VAR'
     TK_AND,  		// '&&'
     TK_OR,   		// '||'
-    TK_EOF          // End of file/input
+    TK_EOF,         // End of file/input
+    TK_NON          // Undefined token  -->> created by umut
 }	t_token_type;
 
 // * Struct for tokens (Lexing)

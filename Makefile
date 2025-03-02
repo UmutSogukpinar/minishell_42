@@ -7,10 +7,11 @@ CFLAGS		= -Iincludes -lreadline # ! temporarily ignoring errors while testing
 # CFLAGS		= -g # ! for debugging
 LIBFT		= libft/libft.a
 
-SRC_DIR=srcs
+SRC_DIR = srcs
+PARSE_DIR = srcs/parse
 
 SRCS =	$(SRC_DIR)/main.c		\
-		$(SRC_DIR)/parse.c		\
+		$(PARSE_DIR)/parse.c	\
 		$(SRC_DIR)/pipe.c		\
 		$(SRC_DIR)/signal.c		\
 		$(SRC_DIR)/execute.c	\

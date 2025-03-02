@@ -2,16 +2,18 @@
 
 char	**tokenise_input(char *input)
 {
-	char	**final;
+	t_token		head;
+	int			i;
 
 	// TODO:
-	// Control ' and "  ---> by using sub-functions	
+	// Control "double quote" and "quote"  ---> by using sub-functions	
 	// Split arguments and return tokenised input.
 	// final process
-	final = ft_split(input);
-	if (!final)
-		return (NULL);
-	return (final);
+
+
+	i = -1;
+	
+
 }
 
 // ? Example: ["ls", "-l", "|", "grep", "minishell", ">", "output.txt"]

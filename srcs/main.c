@@ -12,7 +12,6 @@ void	shell_loop(void)
 			printf("exit\n");
 			break ;
 		}
-		
 		printf("%s\n", input); // ? test
 		add_history(input); // ? do we need to use rl_clear_histroy for leaks ?
 		process_input(input); // TODO: Implement this function
