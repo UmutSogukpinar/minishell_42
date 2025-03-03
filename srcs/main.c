@@ -1,6 +1,20 @@
 #include "minishell.h"
 
-void	shell_loop(void)
+//purpose: initialize a main structure for the minishell  //* added by umut
+//context: everything initialize as NULL except is_interactive
+
+t_shell	*init_shell(void)
+{
+	t_shell	*new;
+
+	new = ft_calloc(1, sizeof(t_shell));
+	if (!new)
+		return (NULL);
+	new->is_interactive = C_FALSE;
+	return (new);
+}
+
+void	shell_loop(t_shell *shell)
 {
 	char	*input;
 	
@@ -27,7 +41,12 @@ void	shell_loop(void)
 
 int	main(int argc, char **argv, char **envp)
 {
+	t_shell	*shell;
+
+	shell = init_shell();
+	if (!shell)
+		return (ALLOC_ERR);
 	setup_signals(); // TODO: Implement this function
-	shell_loop();
+	shell_loop(shell);
 	return (0);
 }

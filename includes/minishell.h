@@ -11,8 +11,15 @@
 # include <readline/history.h>
 # include "libft.h"
 
-# define SINGLE_QUOTE 39
+# define SPACE 32
 # define DOUBLE_QUOTE 34
+# define SINGLE_QUOTE 39
+
+
+// Error Codes
+
+# define ALLOC_ERR 12
+
 
 typedef enum e_bool
 {
@@ -70,6 +77,7 @@ typedef struct s_env
 // * Shell state structure (Global shell context)
 typedef struct s_shell
 {
+	t_token			*token_list;	// Linked list of tokens  //* added by umut
 	t_command		*cmd_list;		// Linked list of commands
 	t_env			*env_list;		// Linked list of environment variables
 	char			**envp;			// Copy of environment variables
