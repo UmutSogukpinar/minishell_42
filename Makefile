@@ -1,20 +1,31 @@
-# TODO: replace LIBFT
-
 NAME		= minishell
 CC			= cc
-# CFLAGS		= -Wall -Wextra -Werror -lreadline -Iincludes
-CFLAGS		= -Iincludes -lreadline # ! temporarily ignoring errors while testing
-# CFLAGS		= -g # ! for debugging
+# CFLAGS		= -Wall -Wextra -Werror -Iincludes -I /home/my-home-dir/.local/include
+CFLAGS		= -Iincludes -I /home/my-home-dir/.local/include
+LDFLAGS		= -L /home/my-home-dir/.local/lib -lreadline -lncurses
 LIBFT		= libft/libft.a
 
-SRC_DIR=srcs
+SRC_DIR		= srcs
+PARSE_DIR 	= $(SRC_DIR)/parse
+HEREDOC		= $(SRC_DIR)/heredoc
+TOKEN_DIR	= $(PARSE_DIR)/token
 
-SRCS =	$(SRC_DIR)/main.c		\
-		$(SRC_DIR)/parse.c		\
-		$(SRC_DIR)/pipe.c		\
-		$(SRC_DIR)/signal.c		\
-		$(SRC_DIR)/execute.c	\
-		$(SRC_DIR)/commands.c	\
+SRCS =	$(SRC_DIR)/main.c					\
+		$(SRC_DIR)/free.c					\
+		$(SRC_DIR)/signal.c					\
+		$(PARSE_DIR)/parse.c				\
+		$(PARSE_DIR)/token_list.c			\
+		$(HEREDOC)/heredoc_list.c			\
+		$(PARSE_DIR)/utils.c				\
+		$(PARSE_DIR)/utils_two.c			\
+		$(TOKEN_DIR)/default_token.c		\
+		$(TOKEN_DIR)/operators_token.c		\
+		$(TOKEN_DIR)/quotes_token.c			\
+		$(TOKEN_DIR)/interactive_token.c	\
+#		$(SRC_DIR)/parse.c				\
+		$(SRC_DIR)/pipe.c				\
+		$(SRC_DIR)/execute.c			\
+		$(SRC_DIR)/commands.c			\
 
 OBJS = $(SRCS:.c=.o)
 
@@ -23,22 +34,21 @@ all: default
 default: $(NAME)
 
 $(NAME): 	$(LIBFT) $(OBJS)
-			@$(CC) $(CFLAGS) $(OBJS)				\
-			$(LIBFT) -o $(NAME)
+			@$(CC) $(OBJS) $(LIBFT) $(LDFLAGS) -o $(NAME)
 			@echo Makefile run successfully!
 
 %.o: %.c
-		$(CC) $(CFLAGS) -c $< -o $@
+		@$(CC) $(CFLAGS) -c $< -o $@
 
 $(LIBFT):
-		make -C libft
+		@make -C libft bonus --silent
 
 clean:
-		@rm $(OBJS)
-		@make fclean -C libft
+		@rm -f $(OBJS)
+		@make fclean -C libft --silent
 	
 fclean: clean
-		@rm -fr $(NAME)
+		@rm -f $(NAME)
 
 re: fclean all
 
