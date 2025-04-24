@@ -1,165 +1,65 @@
 #ifndef MINISHELL_H
-# define MINISHELL_H
+#define MINISHELL_H
 
-# include "../libft/libft.h"
-# include <fcntl.h>
-# include <readline/history.h>
-# include <readline/readline.h>
-# include <signal.h>
 # include <stdio.h>
 # include <stdlib.h>
-# include <sys/wait.h>
 # include <unistd.h>
+# include <signal.h>
+# include <fcntl.h>
+# include <sys/types.h>
+# include <sys/wait.h>
+# include <sys/stat.h>
+# include <errno.h>
+# include <string.h>
+# include <dirent.h>
+# include <stdbool.h>
+# include <termios.h>
+# include <ctype.h>
+# include <readline/readline.h>
+# include <readline/history.h>
 
-# define SINGLE_QUOTE 39
-# define DOUBLE_QUOTE 34
-# define INPUT_RDRCT 60
-# define OUTPUT_RDRCT 62
-# define PIPE 124
+# include "structures.h"
 
-// TODO: fix why this is not recognised in signal.c
-// # define _XOPEN_SOURCE 700
-// # define _POSIX_C_SOURCE 200809L
+# define EX_OK EXIT_SUCCESS
+# define EX_KO EXIT_FAILURE
+# define INV_ARGC 2
 
-// TODO: find necessasary exit codes for proper exit
-# define ALLOC_ERR 12 // not enough memory
+# define PROMPT "minishell> "
 
-typedef enum e_bool
-{
-	C_TRUE = 1,
-	C_FALSE = 0
 
-}						t_bool;
+extern volatile sig_atomic_t	g_signal;
 
-// * Token types for lexing
-typedef enum e_token_type
-{
-	TK_WORD,    // Command or argument
-	TK_PIPE,    // '|'
-	TK_RED_IN,  // '<'
-	TK_RED_OUT, // '>'
-	TK_APPEND,  // '>>'
-	TK_HEREDOC, // '<<'
-	TK_ENV_VAR, // '$VAR'
-	TK_EOF      // End of file/input
-}						t_token_type;
 
-typedef struct s_heredoc
-{
-	int					no;
-	char				*limiter;
-	char				*file_name;
-	t_bool				is_filled;
-	struct s_heredoc	*next;
-}						t_heredoc;
+// * =======================================================>>>>> Shuting and freeing utils
 
-// * Struct for tokens (Lexing)
-typedef struct s_token
-{
-	t_token_type type; // Type of token
-	char *value;       // Token value (e.g., "ls", "-l", "|")
-	struct s_token		*next;
-}						t_token;
+void	shut_program(t_shell *shell, char *msg, int exit_code);
+void    free_shell(t_shell *shell);
 
-// * Command structure
-//!  Probably will be changed
-typedef struct s_command
-{
-	char **argv;    // Command arguments ["ls", "-l", NULL] etc.
-	char *path;     // Command path
-	char *in_file;  // "< file"
-	char *out_file; // "> file" or ">> file"
-	int					fd_in;
-	int					fd_out;
-	t_bool append; // Append mode for ">>"
-	t_bool				is_builtin;
-	struct s_command	*next;
-}						t_command;
+void    free_tokens(t_token *tokens);
 
-// * Environment variable storage (for export)
-typedef struct s_env
-{
-	char *key;          // Environment variable name
-	char *value;        // Environment variable value
-	struct s_env *next; // Next variable
-}						t_env;
 
-// * Shell state structure (Global shell context)
-typedef struct s_shell
-{
-	char				*input;
-	char				*history;
-	int					num_heredoc;
-	int					heredoc_index;
-	t_token *token_list; // Linked list of tokens
-	t_heredoc			*heredoc_list;
-	t_command *cmd_list;   // Linked list of commands
-	t_env *env_list;       // Linked list of environment variables
-	char **envp;           // Copy of environment variables
-	t_bool is_interactive; // Whether shell is running interactively
-}						t_shell;
+// * =======================================================>>>>> String utils
 
-// ! FUNCTION PROTOTYPES
+void skip_spaces(char *input, int *i);
+bool ft_isspace(char c);
+bool	is_quote(char c);
+char	*ultimate_join(char *s1, char *s2);
+bool	are_strs_equal(char *s1, char *s2);
 
-// * freeing memory
-void					make_ready_for_next_prompt(t_shell *shell);
+// * =======================================================>>>>> Parsing utils
 
-// * shutting program
-void					shut_program_err(t_shell *shell);
-void					shut_program_default(t_shell *shell);
+void	print_tokens(t_token *tokens); // ! Will be removed later
+bool    is_operator(char c);
+void	update_token_type(t_token *tokens);
+bool	is_operator_type(t_token_type type);
+bool	is_redirection_type(t_token_type type);
 
-// * Lexing
-void					process_input(t_shell *shell);
+void	add_token(t_shell *shell, t_token **tokens, char *value);
 
-// * Execution
+bool	check_syntax(t_token *tokens);
 
-// * Builtins
+t_token	*tokenizer(t_shell *shell, char *input);
 
-// * Environment
 
-// * Signals
-void					setup_signals(void);
-
-// * Parse Utils
-t_bool					is_operator(char c);
-t_bool					is_quote(char c);
-char					*ultimate_join(t_shell *shell, char *s1, char *s2);
-
-// * Tokenization // Token List
-void					cr_add_token(t_shell *shell, t_token **h, char *v,
-							t_token_type type);
-void					clear_token_list(t_shell *shell);
-
-// * Heredoc List
-int						heredoc_list_len(t_heredoc *head);
-void					cr_add_heredoc(t_shell *shell, t_heredoc **h,
-							char *limiter);
-
-// * Heredoc utils
-void					heredoc_interactive(t_shell *shell, char *input);
-void					fill_heredocs(t_shell *shell);
-void					clear_heredoc(t_shell *shell);
-
-// * Token utils functions
-char					*token_default(t_shell *shell, char *input, int *i);
-void					token_operator(t_shell *shell, char *input, int *i);
-char					*token_quote(t_shell *shell, char *input, int *i);
-
-char					*concat_default(t_shell *shell, char *input, int *i,
-							char *token);
-char					*concat_quote(t_shell *shell, char *input, int *i,
-							char *token);
-
-// * Interactive Mode
-t_bool					is_interactive(t_shell *shell);
-t_bool					ends_with_pipe(t_shell *shell);
-t_bool					is_quote_open(t_shell *shell);
-t_bool					does_any_heredoc_remain(t_shell *shell);
-void					handle_interactive(t_shell *shell);
-int						count_heredoc(t_shell *shell);
-
-// * Utils
-t_bool					are_strs_equal(char *s1, char *s2);
-t_bool					is_space(char c);
 
 #endif
