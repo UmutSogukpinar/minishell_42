@@ -45,10 +45,13 @@ static bool	check_token_pair_syntax(t_token *prev, t_token *tokens)
 		return (true);
 	if (is_operator_type(prev->type) && is_operator_type(tokens->type))
 	{
-		ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
-		ft_putstr_fd(tokens->value, 2);
-		ft_putendl_fd("'", 2);
-		return (false);
+		if (!(prev->type == PIPE && is_redirection_type(tokens->type)))
+		{
+			ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
+			ft_putstr_fd(tokens->value, 2);
+			ft_putendl_fd("'", 2);
+			return (false);
+		}
 	}
 	if (is_redirection_type(prev->type) && tokens->type != WORD)
 	{
@@ -64,13 +67,11 @@ static bool	check_last_token_syntax(t_token *tokens)
 {
 	if (!tokens)
 		return (false);
-
 	while (tokens->next)
 		tokens = tokens->next;
-
 	if (is_operator_type(tokens->type))
 	{
-		ft_putendl_fd("syntax error near unexpected token `newline'", 2);
+		ft_putendl_fd("minishell: syntax error near unexpected token `newline'", 2);
 		return (false);
 	}
 	return (true);
@@ -102,4 +103,3 @@ static bool	check_first_token_syntax(t_token *tokens)
 	}
 	return (true);
 }
-

@@ -56,9 +56,13 @@ bool	is_redirection_type(t_token_type type);
 
 void	add_token(t_shell *shell, t_token **tokens, char *value);
 
-bool	check_syntax(t_token *tokens);
-
 t_token	*tokenizer(t_shell *shell, char *input);
+
+// * =======================================================>>>>> Syntax checker
+bool	check_syntax(t_token *tokens);
+bool	are_quotes_closed(t_token *tokens);
+
+
 
 
 

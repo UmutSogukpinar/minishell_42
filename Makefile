@@ -20,6 +20,7 @@ SRCS			=	$(SRC_DIR)/main.c				\
 					$(TOKENS_DIR)/utils.c			\
 					$(UTILS_DIR)/string_utils.c		\
 					$(UTILS_DIR)/checker_utils.c	\
+					$(UTILS_DIR)/checker2_utils.c	\
 
 
 

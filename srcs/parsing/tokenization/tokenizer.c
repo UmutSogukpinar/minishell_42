@@ -24,7 +24,7 @@ t_token	*tokenizer(t_shell *shell, char *input)
 			get_combined_token(shell, input, &i, &tokens);
 	}
     update_token_type(tokens);
-    print_tokens(shell->token); // ! Will be removed later
+    print_tokens(tokens); // ! Will be removed later
 	return (tokens);
 }
 

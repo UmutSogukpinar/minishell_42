@@ -42,7 +42,7 @@ static void shell_loop(t_shell *shell)
 			add_history(prompt);
         shell->input = prompt;
 		shell->token = tokenizer(shell, prompt);
-        if (!check_syntax(shell->token))
+        if (!(check_syntax(shell->token) && are_quotes_closed(shell->token)))
             continue;
         make_ready_for_next_prompt(shell);
 	}
