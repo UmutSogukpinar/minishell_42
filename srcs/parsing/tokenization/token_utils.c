@@ -60,6 +60,11 @@ bool	is_redirection_type(t_token_type type)
 
 void	print_tokens(t_token *tokens) // ! For testing purposes
 {
+    if (!tokens)
+    {
+        printf("No tokens to print.\n");
+        return ;
+    }
 	while (tokens)
 	{
 		printf("Token Value: \"%s\", Type: %d\n", tokens->value, tokens->type);

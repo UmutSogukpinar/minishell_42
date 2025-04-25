@@ -1,4 +1,5 @@
 #include "minishell.h"
+#include "../libft/libft.h"
 #include "stdlib.h"
 
 void	init_env(t_shell *shell, char **envp)
@@ -35,3 +36,19 @@ void	free_env_list(t_env *env)
 		curr = next;
 	}
 }
+
+// ! This function is for debugging purposes only
+void	print_env_list(t_env *env)
+{
+	while (env)
+	{
+		if (env->key && env->value)
+		{
+			ft_putstr_fd(env->key, STDOUT_FILENO);
+			ft_putchar_fd('=', STDOUT_FILENO);
+			ft_putendl_fd(env->value, STDOUT_FILENO);
+		}
+		env = env->next;
+	}
+}
+

@@ -17,13 +17,14 @@ PARSE_DIR	= 	$(PARSING_DIR)/parse
 
 
 SRCS			=	$(SRC_DIR)/main.c				\
-					$(SRC_DIR)/free_shell.c			\
+					$(SRC_DIR)/free_and_error.c		\
 					$(TOKENS_DIR)/tokenizer.c		\
 					$(TOKENS_DIR)/token_lst.c		\
 					$(TOKENS_DIR)/token_utils.c		\
 					$(PARSE_DIR)/parser.c			\
 					$(PARSE_DIR)/cmd_lst.c			\
 					$(PARSE_DIR)/redirection.c		\
+					$(EXEC_DIR)/pipe.c				\
 					$(ENV_DIR)/env.c				\
 					$(ENV_DIR)/env_utils.c			\
 					$(UTILS_DIR)/string_utils.c		\

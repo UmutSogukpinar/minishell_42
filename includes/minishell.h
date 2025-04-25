@@ -33,6 +33,8 @@
 # define PROMPT "minishell> "
 # define HEREDOC_PROMPT "heredoc> "
 
+# define PIPE_PAIR 2
+
 
 extern volatile sig_atomic_t	g_signal;
 
@@ -42,6 +44,7 @@ extern volatile sig_atomic_t	g_signal;
 void	shut_program(t_shell *shell, char *msg, int exit_code);
 void    free_shell(t_shell *shell);
 
+void	free_str_array(char **arr);
 
 
 // * =======================================================>>>>> String utils
@@ -90,10 +93,36 @@ void	init_env(t_shell *shell, char **envp);
 void	free_env_list(t_env *env);
 t_env	*create_env_node(t_shell *shell, char *env_var);
 void	add_env_node(t_env **env_list, t_env *new_node);
+char    *get_env_value(t_env *env, char *key);
+void	print_env_list(t_env *env); // ! Will be removed later
 
 // * =======================================================>>>>> Execution utils
 
 bool process_heredocs(t_shell *shell);
 
+int     **setup_pipes(t_shell *shell, int num_pipes);
+void    free_pipe_fd(int **pipe_fd, int num);
+int     count_pipes(t_cmd *cmd);
+void	setup_redirections_with_pipe(t_cmd *cmd, int **pipe_fd, int i, int num_pipes);
+
+
+// * =======================================================>>>>> Builtin utils
+
+bool	is_builtin(char *cmd);
+int     execute_builtin(t_shell *shell, t_cmd *cmd);
+
+int	        ft_cd(char **args, t_env *env);
+int     	ft_echo(char **args);
+int     	ft_env(t_shell *shell);
+int     	ft_exit(char **args);
+int			ft_export(t_shell *shell, char **args);
+int     	ft_pwd(void);
+int     	ft_unset(t_shell *shell, char **args);
+
+
+// * =======================================================>>>>> Path utils
+
+void	path_error_msg(char *cmd, int exit_code, bool is_direct);
+char	*get_path(t_shell *shell, char *cmd, int *exit_code);
 
 #endif

@@ -85,6 +85,7 @@ typedef struct s_shell
 	char			**og_env;
 	int				exit_flag;
 	int				num_pipes;
+    int             **num_pipes_fd;
 	t_env           *env;
 	t_cmd           *cmd;
 	t_token			*token;

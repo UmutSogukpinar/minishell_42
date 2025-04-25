@@ -66,13 +66,22 @@ t_dir *create_redir_node(t_shell *shell, t_redir_type type, char *filename)
 
 void add_redir_node(t_dir **redir_list, t_dir *new_node)
 {
+    t_dir *current;
+
     if (!redir_list || !new_node)
         return ;
-    new_node->next = *redir_list;
-    *redir_list = new_node;
+    if (!*redir_list)
+    {
+        *redir_list = new_node;
+        return ;
+    }
+    current = *redir_list;
+    while (current->next)
+        current = current->next;
+    current->next = new_node;
 }
 
-// ! Will be removed later, for debugging purposes
+// ! Will be removed later, for debugging purposes ===========================
 
 void    print_redir_list(t_dir *redir)
 {

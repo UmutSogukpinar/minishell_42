@@ -45,6 +45,7 @@ static void shell_loop(t_shell *shell)
         if (!(check_syntax(shell->token) && are_quotes_closed(shell->token)))
             continue;
         shell->cmd = parser(shell);
+        shell->num_pipes = count_pipes(shell->cmd);
         print_cmd_list(shell->cmd); // ! Will be removed later
         //execution(shell);
         make_ready_for_next_prompt(shell);
@@ -60,6 +61,8 @@ static void make_ready_for_next_prompt(t_shell *shell)
     shell->token = NULL;
     free_cmd_list(shell->cmd);
     shell->cmd = NULL;
+    free_pipe_fd(shell->num_pipes_fd, shell->num_pipes);
+    shell->num_pipes_fd = NULL;
     shell->num_pipes = 0;
     // TODO: Update later
 }
@@ -71,6 +74,7 @@ static void init_shell(t_shell *shell, char **envp) // ? Check if this is needed
 	shell->num_pipes = 0;
 	shell->og_env = envp;
 	init_env(shell, envp);
+    shell->num_pipes_fd = NULL;
 	shell->cmd = NULL;
 	shell->token = NULL;
 	// g_signal = 0; // ?  Is this supposed to be here?

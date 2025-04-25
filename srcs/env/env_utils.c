@@ -3,6 +3,17 @@
 
 static void	set_env_key_value(t_shell *shell, t_env *node, char *env_var);
 
+char    *get_env_value(t_env *env, char *key)
+{
+    while (env)
+    {
+        if (are_strs_equal(env->key, key))
+            return (env->value);
+        env = env->next;
+    }
+    return (NULL);
+}
+
 void	add_env_node(t_env **env_list, t_env *new_node)
 {
 	t_env	*current;
