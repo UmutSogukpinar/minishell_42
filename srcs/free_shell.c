@@ -18,6 +18,8 @@ void    free_shell(t_shell *shell)
     if (shell->input)
         free(shell->input);
     free_tokens(shell->token);
+    free_cmd_list(shell->cmd);
+    free_env_list(shell->env);
     free(shell);
 }
 

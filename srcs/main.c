@@ -44,8 +44,9 @@ static void shell_loop(t_shell *shell)
 		shell->token = tokenizer(shell, prompt);
         if (!(check_syntax(shell->token) && are_quotes_closed(shell->token)))
             continue;
-        parser(shell);
+        shell->cmd = parser(shell);
         print_cmd_list(shell->cmd); // ! Will be removed later
+        execution(shell);
         make_ready_for_next_prompt(shell);
 	}
 }
@@ -69,7 +70,7 @@ static void init_shell(t_shell *shell, char **envp) // ? Check if this is needed
 	shell->exit_flag = 0;
 	shell->num_pipes = 0;
 	shell->og_env = envp;
-	shell->env = NULL;
+	init_env(shell, envp);
 	shell->cmd = NULL;
 	shell->token = NULL;
 	// g_signal = 0; // ?  Is this supposed to be here?

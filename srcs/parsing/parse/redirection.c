@@ -2,8 +2,8 @@
 #include "../libft/libft.h"
 
 static void set_infile(t_cmd *cmd, char *file);
-static void set_outfile(t_cmd *cmd, char *file, bool is_append, bool is_trunc);
-static void set_heredoc(t_cmd *cmd, char *file);
+static void set_outfile(t_cmd *cmd, char *file, bool is_append);
+static void set_heredoc(t_cmd *cmd, char *delimiter);
 static char    *get_filename(t_shell *shell);
 
 void    parse_redirection(t_shell *shell, t_cmd *cmd)
@@ -21,7 +21,7 @@ void    parse_redirection(t_shell *shell, t_cmd *cmd)
     else if (token->type == REDIRECT_IN)
         set_infile(cmd, file);
     else
-        set_outfile(cmd, file, is_append, token->type == REDIRECT_OUT);
+        set_outfile(cmd, file, is_append);
 }
 
 static char    *get_filename(t_shell *shell)
@@ -43,26 +43,55 @@ static char    *get_filename(t_shell *shell)
 
 static void set_infile(t_cmd *cmd, char *file)
 {
+    if (!cmd)
+        return ;
+
     if (cmd->infile)
+    {
         free(cmd->infile);
+        cmd->infile = NULL;
+    }
+
+    if (cmd->has_heredoc)
+    {
+        if (cmd->heredoc_delim)
+        {
+            free(cmd->heredoc_delim);
+            cmd->heredoc_delim = NULL;
+        }
+        cmd->has_heredoc = false;
+    }
+
     cmd->infile = file;
 }
 
-static void set_outfile(t_cmd *cmd, char *file, bool is_append, bool is_trunc)
+static void set_outfile(t_cmd *cmd, char *file, bool is_append)
 {
+    if (!cmd)
+        return ;
     if (cmd->outfile)
+    {
         free(cmd->outfile);
+        cmd->outfile = NULL;
+    }
     cmd->outfile = file;
     cmd->has_append = is_append;
-    cmd->has_trunc = is_trunc;
-    if(cmd->has_trunc)
-        cmd->has_append = false;
 }
 
-static void set_heredoc(t_cmd *cmd, char *file)
+static void set_heredoc(t_cmd *cmd, char *delimiter)
 {
+    if (!cmd)
+        return ;
+    if (cmd->infile)
+    {
+        free(cmd->infile);
+        cmd->infile = NULL;
+    }
     if (cmd->has_heredoc && cmd->heredoc_delim)
+    {
         free(cmd->heredoc_delim);
+        cmd->heredoc_delim = NULL;
+    }
     cmd->has_heredoc = true;
-    cmd->heredoc_delim = file;
+    cmd->heredoc_delim = delimiter;
 }

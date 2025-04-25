@@ -3,6 +3,36 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+static t_token  *get_segment(t_token **tokens);
+static t_token  *collect_args_list(t_shell *shell);
+
+t_cmd   *parser(t_shell *shell)
+{
+    t_cmd *head = new_cmd_node(shell);
+    t_cmd *tail = head;
+
+    while (shell->token)
+    {
+        while (shell->token && is_redirection_type(shell->token->type))
+            parse_redirection(shell, tail);
+
+        tail->args = collect_args_list(shell);
+
+        while (shell->token && is_redirection_type(shell->token->type))
+            parse_redirection(shell, tail);
+
+        if (shell->token && shell->token->type == PIPE)
+        {
+            advance_token(shell);
+            tail->next = new_cmd_node(shell);
+            tail = tail->next;
+            continue;
+        }
+        break;
+    }
+    return (head);
+}
+
 static t_token  *get_segment(t_token **tokens)
 {
     t_token *start = *tokens;
@@ -35,37 +65,4 @@ static t_token  *collect_args_list(t_shell *shell)
     if (end)
         end->next = NULL;
     return (start);
-}
-
-static t_cmd *parse_command(t_shell *shell)
-{
-    t_cmd *head = new_cmd_node(shell);
-    t_cmd *tail = head;
-
-    while (shell->token)
-    {
-        while (shell->token && is_redirection_type(shell->token->type))
-            parse_redirection(shell, tail);
-
-        tail->args = collect_args_list(shell);
-
-        while (shell->token && is_redirection_type(shell->token->type))
-            parse_redirection(shell, tail);
-
-        if (shell->token && shell->token->type == PIPE)
-        {
-            advance_token(shell);
-            tail->next = new_cmd_node(shell);
-            tail = tail->next;
-            continue;
-        }
-        break;
-    }
-    return (head);
-}
-
-
-void    parser(t_shell *shell)
-{
-    shell->cmd = parse_command(shell);
 }

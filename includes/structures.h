@@ -57,7 +57,6 @@ typedef struct s_cmd
 	char            *infile;
     char            *outfile;
     bool            has_append;
-    bool            has_trunc;
 
 	char			*heredoc_delim; // ? Check if needed
 	// int			heredoc_fd;  // ? Check if needed

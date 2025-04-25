@@ -11,7 +11,6 @@ t_cmd	*new_cmd_node(t_shell *shell)
 	cmd->in_fd = STDIN_FILENO;
 	cmd->out_fd = STDOUT_FILENO;
 	cmd->has_append = false;
-    cmd->has_trunc = false;
 	cmd->has_heredoc = false;
 	cmd->next = NULL;
 	cmd->args = NULL;

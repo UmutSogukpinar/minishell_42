@@ -30,12 +30,11 @@
 extern volatile sig_atomic_t	g_signal;
 
 
-// * =======================================================>>>>> Shuting and freeing utils
+// * =======================================================>>>>> Shuting down
 
 void	shut_program(t_shell *shell, char *msg, int exit_code);
 void    free_shell(t_shell *shell);
 
-void    free_tokens(t_token *tokens);
 
 
 // * =======================================================>>>>> String utils
@@ -54,6 +53,7 @@ void	update_token_type(t_token *tokens);
 bool	is_operator_type(t_token_type type);
 bool	is_redirection_type(t_token_type type);
 
+void    free_tokens(t_token *tokens);
 void	add_token(t_shell *shell, t_token **tokens, char *value);
 void	advance_token(t_shell *shell);
 
@@ -66,11 +66,21 @@ bool	are_quotes_closed(t_token *tokens);
 
 // * =======================================================>>>>> Parser utils
 
-void	parser(t_shell *shell);
+t_cmd *parser(t_shell *shell);
 void	parse_redirection(t_shell *shell, t_cmd *cmd);
 
 t_cmd	*new_cmd_node(t_shell *shell);
 void	free_cmd_list(t_cmd *head);
 void	print_cmd_list(t_cmd *head); // ! Will be removed later
+
+
+// * =======================================================>>>>> Environment utils
+
+void	init_env(t_shell *shell, char **envp);
+void	free_env_list(t_env *env);
+t_env	*create_env_node(t_shell *shell, char *env_var);
+void	add_env_node(t_env **env_list, t_env *new_node);
+
+// * =======================================================>>>>> Execution utils
 
 #endif
