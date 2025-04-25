@@ -46,7 +46,7 @@ static void shell_loop(t_shell *shell)
             continue;
         shell->cmd = parser(shell);
         print_cmd_list(shell->cmd); // ! Will be removed later
-        execution(shell);
+        //execution(shell);
         make_ready_for_next_prompt(shell);
 	}
 }

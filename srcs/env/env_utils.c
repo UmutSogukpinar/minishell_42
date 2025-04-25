@@ -1,4 +1,5 @@
 #include "minishell.h"
+#include "../libft/libft.h"
 
 static void	set_env_key_value(t_shell *shell, t_env *node, char *env_var);
 

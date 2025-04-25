@@ -7,6 +7,7 @@ void	shut_program(t_shell *shell, char *msg, int exit_code)
         ft_putendl_fd(msg, STDERR_FILENO);
     if (!shell)
         return ;
+    free_shell(shell);
     exit(exit_code);
 }
 
