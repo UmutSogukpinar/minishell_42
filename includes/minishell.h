@@ -46,7 +46,7 @@ bool	is_quote(char c);
 char	*ultimate_join(char *s1, char *s2);
 bool	are_strs_equal(char *s1, char *s2);
 
-// * =======================================================>>>>> Parsing utils
+// * =======================================================>>>>> Token utils
 
 void	print_tokens(t_token *tokens); // ! Will be removed later
 bool    is_operator(char c);
@@ -55,6 +55,7 @@ bool	is_operator_type(t_token_type type);
 bool	is_redirection_type(t_token_type type);
 
 void	add_token(t_shell *shell, t_token **tokens, char *value);
+void	advance_token(t_shell *shell);
 
 t_token	*tokenizer(t_shell *shell, char *input);
 
@@ -63,7 +64,13 @@ bool	check_syntax(t_token *tokens);
 bool	are_quotes_closed(t_token *tokens);
 
 
+// * =======================================================>>>>> Parser utils
 
+void	parser(t_shell *shell);
+void	parse_redirection(t_shell *shell, t_cmd *cmd);
 
+t_cmd	*new_cmd_node(t_shell *shell);
+void	free_cmd_list(t_cmd *head);
+void	print_cmd_list(t_cmd *head); // ! Will be removed later
 
 #endif

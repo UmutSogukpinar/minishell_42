@@ -1,6 +1,8 @@
 #ifndef STRUCTURES_H
 #define STRUCTURES_H
 
+#include <stdbool.h>
+
 // * ==========================================================>		Enums
 
 // * Enum for token types 
@@ -52,13 +54,14 @@ typedef struct s_cmd
     int             in_fd;
     int             out_fd;
 
-	char    *infile;
-    char    *outfile;
-    bool     append;
+	char            *infile;
+    char            *outfile;
+    bool            has_append;
+    bool            has_trunc;
 
-	char			*heredoc_delim; // !
-	// int			heredoc_fd;
-	bool			has_heredoc; // !
+	char			*heredoc_delim; // ? Check if needed
+	// int			heredoc_fd;  // ? Check if needed
+	bool			has_heredoc; // ? Check if needed
     struct s_cmd   *next;
 }               t_cmd;
 

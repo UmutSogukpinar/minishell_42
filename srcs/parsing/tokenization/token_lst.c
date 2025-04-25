@@ -16,7 +16,6 @@ void    free_tokens(t_token *tokens)
     }
 }
 
-
 void	add_token(t_shell *shell, t_token **tokens, char *value)
 {
 	t_token	*new;
@@ -34,6 +33,12 @@ void	add_token(t_shell *shell, t_token **tokens, char *value)
 			temp = temp->next;
 		temp->next = new;
 	}
+}
+
+void	advance_token(t_shell *shell)
+{
+	if (shell->token)
+		shell->token = shell->token->next;
 }
 
 static t_token	*new_token(char *value)

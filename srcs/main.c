@@ -31,7 +31,7 @@ static void shell_loop(t_shell *shell)
 
 	while (1)
 	{
-        make_ready_for_next_prompt(shell); // ? Is double checking needed?
+        make_ready_for_next_prompt(shell); // ? Is double checking needed? ->> Probably
 		prompt = readline(PROMPT);
 		if (!prompt)
 		{
@@ -44,6 +44,8 @@ static void shell_loop(t_shell *shell)
 		shell->token = tokenizer(shell, prompt);
         if (!(check_syntax(shell->token) && are_quotes_closed(shell->token)))
             continue;
+        parser(shell);
+        print_cmd_list(shell->cmd); // ! Will be removed later
         make_ready_for_next_prompt(shell);
 	}
 }
@@ -55,6 +57,9 @@ static void make_ready_for_next_prompt(t_shell *shell)
     shell->input = NULL;
     free_tokens(shell->token);
     shell->token = NULL;
+    free_cmd_list(shell->cmd);
+    shell->cmd = NULL;
+    shell->num_pipes = 0;
     // TODO: Update later
 }
 

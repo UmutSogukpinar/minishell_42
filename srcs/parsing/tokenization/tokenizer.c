@@ -25,6 +25,7 @@ t_token	*tokenizer(t_shell *shell, char *input)
 	}
     update_token_type(tokens);
     print_tokens(tokens); // ! Will be removed later
+    printf("==========================\n");
 	return (tokens);
 }
 

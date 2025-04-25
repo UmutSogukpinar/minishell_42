@@ -9,8 +9,9 @@ SRC_DIR			= 	srcs
 OBJ_DIR			= 	objs
 
 UTILS_DIR	= 	$(SRC_DIR)/utils
-PARSE_DIR	= 	$(SRC_DIR)/parsing
-TOKENS_DIR	= 	$(PARSE_DIR)/tokenization
+PARSING_DIR	= 	$(SRC_DIR)/parsing
+TOKENS_DIR	= 	$(PARSING_DIR)/tokenization
+PARSE_DIR	= 	$(PARSING_DIR)/parse
 
 
 SRCS			=	$(SRC_DIR)/main.c				\
@@ -18,6 +19,9 @@ SRCS			=	$(SRC_DIR)/main.c				\
 					$(TOKENS_DIR)/tokenizer.c		\
 					$(TOKENS_DIR)/token_lst.c		\
 					$(TOKENS_DIR)/utils.c			\
+					$(PARSE_DIR)/parser.c			\
+					$(PARSE_DIR)/cmd_lst.c			\
+					$(PARSE_DIR)/redirection.c		\
 					$(UTILS_DIR)/string_utils.c		\
 					$(UTILS_DIR)/checker_utils.c	\
 					$(UTILS_DIR)/checker2_utils.c	\
