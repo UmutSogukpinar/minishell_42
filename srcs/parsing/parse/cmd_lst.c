@@ -8,15 +8,27 @@ t_cmd	*new_cmd_node(t_shell *shell)
 	cmd = ft_calloc(1, sizeof(t_cmd));
 	if (!cmd)
 		shut_program(shell, "Alloc error on new_cmd_node()", EX_KO);
+    // ? Check is this necessary
 	cmd->in_fd = STDIN_FILENO;
 	cmd->out_fd = STDOUT_FILENO;
-	cmd->has_append = false;
-	cmd->has_heredoc = false;
 	cmd->next = NULL;
 	cmd->args = NULL;
-	cmd->infile = NULL;
-	cmd->outfile = NULL;
+    cmd->redir_list = NULL;
 	return (cmd);
+}
+
+static void    free_redir_list(t_dir *redir)
+{
+    t_dir *tmp;
+
+    while (redir)
+    {
+        tmp = redir->next;
+        if (redir->filename)
+            free(redir->filename);
+        free(redir);
+        redir = tmp;
+    }
 }
 
 void    free_cmd_list(t_cmd *head)
@@ -28,28 +40,67 @@ void    free_cmd_list(t_cmd *head)
     while (curr)
     {
         next = curr->next;
-        if (curr->infile)
-            free(curr->infile);
-        if (curr->outfile)
-            free(curr->outfile);
-        if (curr->has_heredoc && curr->heredoc_delim)
-            free(curr->heredoc_delim);
         if (curr->args)
             free_tokens(curr->args);
+        if (curr->redir_list)
+            free_redir_list(curr->redir_list);
         free(curr);
         curr = next;
     }
 }
 
-void            print_cmd_list(t_cmd *head) // ! Will be removed later
+t_dir *create_redir_node(t_shell *shell, t_redir_type type, char *filename)
+{
+    t_dir *new;
+
+    new = ft_calloc(1, sizeof(t_dir));
+    if (!new)
+        return (NULL);
+    new->type = type;
+    new->filename = filename;
+    new->heredoc_fd[0] = -1;
+    new->heredoc_fd[1] = -1;
+    new->next = NULL;
+    return (new);
+}
+
+void add_redir_node(t_dir **redir_list, t_dir *new_node)
+{
+    if (!redir_list || !new_node)
+        return ;
+    new_node->next = *redir_list;
+    *redir_list = new_node;
+}
+
+// ! Will be removed later, for debugging purposes
+
+void    print_redir_list(t_dir *redir)
+{
+    while (redir)
+    {
+        printf("  redirection: ");
+        if (redir->type == DIR_IN)
+            printf("< ");
+        else if (redir->type == DIR_OUT)
+            printf("> ");
+        else if (redir->type == DIR_APPEND)
+            printf(">> ");
+        else if (redir->type == DIR_HEREDOC)
+            printf("<< ");
+
+        printf("%s\n", redir->filename);
+        redir = redir->next;
+    }
+}
+
+void    print_cmd_list(t_cmd *head)
 {
     t_cmd   *curr = head;
     t_token *arg;
 
     while (curr)
     {
-        printf("Command:\n");
-        printf("  args:");
+        printf("Command:\n  args:");
         arg = curr->args;
         if (!arg)
             printf(" (none)");
@@ -60,29 +111,13 @@ void            print_cmd_list(t_cmd *head) // ! Will be removed later
         }
         printf("\n");
 
-        if (curr->infile)
-            printf("  infile: %s\n", curr->infile);
+        if (curr->redir_list)
+            print_redir_list(curr->redir_list);
         else
-            printf("  infile: (none)\n");
-
-        if (curr->outfile)
-            printf("  outfile: %s\n", curr->outfile);
-        else
-            printf("  outfile: (none)\n");
-
-        printf("  has_append: %s\n",
-            curr->has_append ? "true" : "false");
-
-        printf("  has_heredoc: %s\n",
-            curr->has_heredoc ? "true" : "false");
-
-        if (curr->has_heredoc)
-            printf("  heredoc_delim: %s\n",
-                curr->heredoc_delim);
-        else
-            printf("  heredoc_delim: (none)\n");
+            printf("  redirection: (none)\n");
 
         curr = curr->next;
     }
 }
+
 

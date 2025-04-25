@@ -24,7 +24,14 @@
 # define EX_KO EXIT_FAILURE
 # define INV_ARGC 2
 
+
+#define HEREDOC_PIPE_ERROR 1
+#define HEREDOC_FORK_ERROR 2
+#define HEREDOC_EXIT_OK 0
+#define HEREDOC_EXIT_INTERRUPTED 130
+
 # define PROMPT "minishell> "
+# define HEREDOC_PROMPT "heredoc> "
 
 
 extern volatile sig_atomic_t	g_signal;
@@ -73,6 +80,9 @@ t_cmd	*new_cmd_node(t_shell *shell);
 void	free_cmd_list(t_cmd *head);
 void	print_cmd_list(t_cmd *head); // ! Will be removed later
 
+t_dir *create_redir_node(t_shell *shell, t_redir_type type, char *filename);
+void add_redir_node(t_dir **redir_list, t_dir *new_node);
+
 
 // * =======================================================>>>>> Environment utils
 
@@ -82,5 +92,8 @@ t_env	*create_env_node(t_shell *shell, char *env_var);
 void	add_env_node(t_env **env_list, t_env *new_node);
 
 // * =======================================================>>>>> Execution utils
+
+bool process_heredocs(t_shell *shell);
+
 
 #endif

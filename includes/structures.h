@@ -18,7 +18,17 @@ typedef enum	e_token_type
     DQUOTE,			// Double quote
 	SQUOTE,			// Single quote
 	NIL				// NULL (default)
+
 }				t_token_type;
+
+typedef enum e_redir_type
+{
+    DIR_IN,     // '<'
+    DIR_OUT,    // '>'
+    DIR_APPEND, // '>>'
+    DIR_HEREDOC // '<<'
+
+}   t_redir_type;
 
 // * ==========================================================>		Structures
 
@@ -30,6 +40,14 @@ typedef struct s_buffer
 	int		k;
 }	t_buffer;
 
+// * Struct for redirection
+typedef struct s_dir
+{
+    t_redir_type    type;
+    char            *filename;      // infile, outfile, delimiter (for heredoc)
+    int             heredoc_fd[2];  // only for heredoc
+    struct s_dir    *next;
+}               t_dir;
 
 // * Struct for environment variables
 typedef struct s_env
@@ -50,18 +68,14 @@ typedef struct s_token
 // * Struct for command arguments
 typedef struct s_cmd
 {
-    t_token		 	*args;
+    t_token		    *args;
+
     int             in_fd;
     int             out_fd;
 
-	char            *infile;
-    char            *outfile;
-    bool            has_append;
+    t_dir           *redir_list;    // redirection stack
 
-	char			*heredoc_delim; // ? Check if needed
-	// int			heredoc_fd;  // ? Check if needed
-	bool			has_heredoc; // ? Check if needed
-    struct s_cmd   *next;
+    struct s_cmd    *next;
 }               t_cmd;
 
 // * Struct for shell state

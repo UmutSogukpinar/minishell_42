@@ -1,28 +1,43 @@
 #include "minishell.h"
 #include "../libft/libft.h"
 
-static void set_infile(t_cmd *cmd, char *file);
-static void set_outfile(t_cmd *cmd, char *file, bool is_append);
-static void set_heredoc(t_cmd *cmd, char *delimiter);
 static char    *get_filename(t_shell *shell);
+static t_redir_type    get_redir_type(t_shell *shell, t_token *token);
 
 void    parse_redirection(t_shell *shell, t_cmd *cmd)
 {
-    t_token *token;
-    char    *file;
-    bool    is_append;
+    t_token     *token;
+    char        *file;
+    t_redir_type dir_type;
+    t_dir       *redir;
 
     token = shell->token;
-    is_append = (token->type == APPEND);
     advance_token(shell);
     file = get_filename(shell);
-    if (token->type == HEREDOC)
-        set_heredoc(cmd, file);
-    else if (token->type == REDIRECT_IN)
-        set_infile(cmd, file);
-    else
-        set_outfile(cmd, file, is_append);
+    dir_type = get_redir_type(shell, token);
+    redir = create_redir_node(shell, dir_type, file);
+    if (!redir)
+    {
+        free(file);
+        shut_program(shell, "Alloc error in parse_redirection", EX_KO);
+    }
+    add_redir_node(&cmd->redir_list, redir);
 }
+
+static t_redir_type    get_redir_type(t_shell *shell, t_token *token)
+{
+    if (token->type == REDIRECT_IN)
+        return (DIR_IN);
+    if (token->type == REDIRECT_OUT)
+        return (DIR_OUT);
+    if (token->type == APPEND)
+        return (DIR_APPEND);
+    if (token->type == HEREDOC)
+        return (DIR_HEREDOC);
+    shut_program(shell, "Unknown redirection type", EX_KO);
+    return (DIR_IN); // Unreachable, for norm compliance
+}
+
 
 static char    *get_filename(t_shell *shell)
 {
@@ -41,57 +56,4 @@ static char    *get_filename(t_shell *shell)
 }
 
 
-static void set_infile(t_cmd *cmd, char *file)
-{
-    if (!cmd)
-        return ;
 
-    if (cmd->infile)
-    {
-        free(cmd->infile);
-        cmd->infile = NULL;
-    }
-
-    if (cmd->has_heredoc)
-    {
-        if (cmd->heredoc_delim)
-        {
-            free(cmd->heredoc_delim);
-            cmd->heredoc_delim = NULL;
-        }
-        cmd->has_heredoc = false;
-    }
-
-    cmd->infile = file;
-}
-
-static void set_outfile(t_cmd *cmd, char *file, bool is_append)
-{
-    if (!cmd)
-        return ;
-    if (cmd->outfile)
-    {
-        free(cmd->outfile);
-        cmd->outfile = NULL;
-    }
-    cmd->outfile = file;
-    cmd->has_append = is_append;
-}
-
-static void set_heredoc(t_cmd *cmd, char *delimiter)
-{
-    if (!cmd)
-        return ;
-    if (cmd->infile)
-    {
-        free(cmd->infile);
-        cmd->infile = NULL;
-    }
-    if (cmd->has_heredoc && cmd->heredoc_delim)
-    {
-        free(cmd->heredoc_delim);
-        cmd->heredoc_delim = NULL;
-    }
-    cmd->has_heredoc = true;
-    cmd->heredoc_delim = delimiter;
-}
