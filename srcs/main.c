@@ -47,7 +47,7 @@ static void shell_loop(t_shell *shell)
         shell->cmd = parser(shell);
         shell->num_pipes = count_pipes(shell->cmd);
         print_cmd_list(shell->cmd); // ! Will be removed later
-        //execution(shell);
+        execution(shell);
         make_ready_for_next_prompt(shell);
 	}
 }

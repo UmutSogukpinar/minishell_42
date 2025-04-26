@@ -44,7 +44,7 @@ extern volatile sig_atomic_t	g_signal;
 void	shut_program(t_shell *shell, char *msg, int exit_code);
 void    free_shell(t_shell *shell);
 
-void	free_str_array(char **arr);
+void	ft_free_tab(char **arr);
 
 
 // * =======================================================>>>>> String utils
@@ -54,6 +54,8 @@ bool ft_isspace(char c);
 bool	is_quote(char c);
 char	*ultimate_join(char *s1, char *s2);
 bool	are_strs_equal(char *s1, char *s2);
+
+char	*ft_strjoin_path(char *dir, char *cmd);
 
 // * =======================================================>>>>> Token utils
 
@@ -80,6 +82,7 @@ t_cmd *parser(t_shell *shell);
 void	parse_redirection(t_shell *shell, t_cmd *cmd);
 
 t_cmd	*new_cmd_node(t_shell *shell);
+int get_len_cmd_args(t_cmd *cmd);
 void	free_cmd_list(t_cmd *head);
 void	print_cmd_list(t_cmd *head); // ! Will be removed later
 
@@ -90,21 +93,32 @@ void add_redir_node(t_dir **redir_list, t_dir *new_node);
 // * =======================================================>>>>> Environment utils
 
 void	init_env(t_shell *shell, char **envp);
+void	free_env(t_env *node);
 void	free_env_list(t_env *env);
 t_env	*create_env_node(t_shell *shell, char *env_var);
 void	add_env_node(t_env **env_list, t_env *new_node);
+t_env	*find_env_node(t_env *env, char *key);
 char    *get_env_value(t_env *env, char *key);
 void	print_env_list(t_env *env); // ! Will be removed later
 
 // * =======================================================>>>>> Execution utils
 
-bool process_heredocs(t_shell *shell);
+void	execution(t_shell *shell);
+
+void	child_process(t_shell *shell, t_cmd *cmd, int i);
+void	setup_child(t_cmd *cmd, t_shell *shell, int i);
+
+int     process_heredocs(t_shell *shell);
 
 int     **setup_pipes(t_shell *shell, int num_pipes);
 void    free_pipe_fd(int **pipe_fd, int num);
 int     count_pipes(t_cmd *cmd);
-void	setup_redirections_with_pipe(t_cmd *cmd, int **pipe_fd, int i, int num_pipes);
+void	close_unused_pipes(t_shell *shell, int current);
 
+void    print_open_error(char *filename);
+bool	setup_redirections_with_pipe(t_shell *shell, t_cmd *cmd, int i);
+
+char	**modify_args(t_cmd *cmd);
 
 // * =======================================================>>>>> Builtin utils
 
@@ -113,16 +127,19 @@ int     execute_builtin(t_shell *shell, t_cmd *cmd);
 
 int	        ft_cd(char **args, t_env *env);
 int     	ft_echo(char **args);
-int     	ft_env(t_shell *shell);
-int     	ft_exit(char **args);
+int     	ft_env(t_shell *shell, bool is_export);
+int	        ft_exit(t_shell *shell, char **args);
 int			ft_export(t_shell *shell, char **args);
-int     	ft_pwd(void);
+int     	ft_pwd(t_shell *shell);
 int     	ft_unset(t_shell *shell, char **args);
+
+t_env	*parse_export_argument(t_shell *shell, char *arg);
+void	add_or_update_env(t_shell *shell, char *key, char *value);
 
 
 // * =======================================================>>>>> Path utils
 
 void	path_error_msg(char *cmd, int exit_code, bool is_direct);
-char	*get_path(t_shell *shell, char *cmd, int *exit_code);
+char	*get_cmd_path(t_shell *shell, char *cmd, int *exit_code);
 
 #endif

@@ -19,6 +19,18 @@ void	init_env(t_shell *shell, char **envp)
 	}
 }
 
+t_env	*find_env_node(t_env *env, char *key)
+{
+	while (env)
+	{
+		if (are_strs_equal(env->key, key))
+			return (env);
+		env = env->next;
+	}
+	return (NULL);
+}
+
+
 void	free_env_list(t_env *env)
 {
 	t_env	*curr;
@@ -36,6 +48,18 @@ void	free_env_list(t_env *env)
 		curr = next;
 	}
 }
+
+void	free_env(t_env *node)
+{
+	if (!node)
+		return ;
+	if (node->key)
+		free(node->key);
+	if (node->value)
+		free(node->value);
+	free(node);
+}
+
 
 // ! This function is for debugging purposes only
 void	print_env_list(t_env *env)

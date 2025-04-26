@@ -6,6 +6,20 @@
 static t_token  *get_segment(t_token **tokens);
 static t_token  *collect_args_list(t_shell *shell);
 
+int get_len_cmd_args(t_cmd *cmd)
+{
+    int len = 0;
+    t_token *tmp = cmd->args;
+
+    while (tmp)
+    {
+        len++;
+        tmp = tmp->next;
+    }
+    return (len);
+}
+
+
 t_cmd   *parser(t_shell *shell)
 {
     t_cmd *head;
