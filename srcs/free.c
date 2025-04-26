@@ -25,7 +25,7 @@ void    free_shell(t_shell *shell)
     free(shell);
 }
 
-void	free_str_array(char **arr)
+void	ft_free_tab(char **arr)
 {
 	int	i;
 
@@ -40,19 +40,5 @@ void	free_str_array(char **arr)
 	free(arr);
 }
 
-void	path_error_msg(char *cmd, int exit_code, bool is_direct)
-{
-	if (exit_code == 127)
-	{
-		if (is_direct)
-			ft_putstr_fd("minishell: no such file or directory: ", STDERR_FILENO);
-		else
-			ft_putstr_fd("minishell: command not found: ", STDERR_FILENO);
-	}
-	else if (exit_code == 126)
-	{
-		ft_putstr_fd("minishell: permission denied: ", STDERR_FILENO);
-	}
-	ft_putendl_fd(cmd, STDERR_FILENO);
-}
+
 

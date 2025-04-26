@@ -9,6 +9,7 @@ SRC_DIR			= 	srcs
 OBJ_DIR			= 	objs
 
 UTILS_DIR	= 	$(SRC_DIR)/utils
+BUILTIN_DIR	= 	$(SRC_DIR)/builtins
 ENV_DIR		= 	$(SRC_DIR)/env
 EXEC_DIR	= 	$(SRC_DIR)/execution
 PARSING_DIR	= 	$(SRC_DIR)/parsing
@@ -17,17 +18,34 @@ PARSE_DIR	= 	$(PARSING_DIR)/parse
 
 
 SRCS			=	$(SRC_DIR)/main.c				\
-					$(SRC_DIR)/free_and_error.c		\
+					$(SRC_DIR)/free.c				\
+					$(SRC_DIR)/errors.c				\
 					$(TOKENS_DIR)/tokenizer.c		\
 					$(TOKENS_DIR)/token_lst.c		\
 					$(TOKENS_DIR)/token_utils.c		\
 					$(PARSE_DIR)/parser.c			\
 					$(PARSE_DIR)/cmd_lst.c			\
 					$(PARSE_DIR)/redirection.c		\
+					$(EXEC_DIR)/execution.c			\
+					$(EXEC_DIR)/exec_builtin.c		\
+					$(EXEC_DIR)/child.c				\
+					$(EXEC_DIR)/child_setup.c		\
+					$(EXEC_DIR)/heredoc.c			\
+					$(EXEC_DIR)/path.c				\
 					$(EXEC_DIR)/pipe.c				\
+					$(EXEC_DIR)/setup_redirection.c	\
+					$(BUILTIN_DIR)/cd.c				\
+					$(BUILTIN_DIR)/pwd.c			\
+					$(BUILTIN_DIR)/env.c			\
+					$(BUILTIN_DIR)/echo.c			\
+					$(BUILTIN_DIR)/exit.c			\
+					$(BUILTIN_DIR)/unset.c			\
+					$(BUILTIN_DIR)/export.c			\
+					$(BUILTIN_DIR)/export_utils.c	\
 					$(ENV_DIR)/env.c				\
 					$(ENV_DIR)/env_utils.c			\
 					$(UTILS_DIR)/string_utils.c		\
+					$(UTILS_DIR)/string2_utils.c	\
 					$(UTILS_DIR)/checker_utils.c	\
 					$(UTILS_DIR)/checker2_utils.c	\
 
