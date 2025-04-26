@@ -16,7 +16,7 @@ int	main(int argc, char **argv, char **envp)
 	shell = ft_calloc(1, sizeof(t_shell));
 	if (!shell)
 	{
-		ft_putendl_fd("Memory allocation error on main()", STDERR_FILENO);
+		perror("minishell");
 		return (EX_KO);
 	}
 	init_shell(shell, envp);

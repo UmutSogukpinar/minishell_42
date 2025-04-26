@@ -41,7 +41,7 @@ extern volatile sig_atomic_t	g_signal;
 
 // * =======================================================>>>>> Shuting down
 
-void	shut_program(t_shell *shell, char *msg, int exit_code);
+void	shut_program(t_shell *shell, bool need_msg, int exit_code);
 void    free_shell(t_shell *shell);
 
 void	ft_free_tab(char **arr);
@@ -99,7 +99,6 @@ t_env	*create_env_node(t_shell *shell, char *env_var);
 void	add_env_node(t_env **env_list, t_env *new_node);
 t_env	*find_env_node(t_env *env, char *key);
 char    *get_env_value(t_env *env, char *key);
-void	print_env_list(t_env *env); // ! Will be removed later
 
 // * =======================================================>>>>> Execution utils
 

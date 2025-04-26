@@ -30,6 +30,16 @@ t_env	*find_env_node(t_env *env, char *key)
 	return (NULL);
 }
 
+char    *get_env_value(t_env *env, char *key)
+{
+    while (env)
+    {
+        if (are_strs_equal(env->key, key))
+            return (env->value);
+        env = env->next;
+    }
+    return (NULL);
+}
 
 void	free_env_list(t_env *env)
 {
@@ -59,20 +69,3 @@ void	free_env(t_env *node)
 		free(node->value);
 	free(node);
 }
-
-
-// ! This function is for debugging purposes only
-void	print_env_list(t_env *env)
-{
-	while (env)
-	{
-		if (env->key && env->value)
-		{
-			ft_putstr_fd(env->key, STDOUT_FILENO);
-			ft_putchar_fd('=', STDOUT_FILENO);
-			ft_putendl_fd(env->value, STDOUT_FILENO);
-		}
-		env = env->next;
-	}
-}
-
