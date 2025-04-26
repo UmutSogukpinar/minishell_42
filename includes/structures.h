@@ -82,6 +82,7 @@ typedef struct s_shell
 	char			*input;
 	char			**og_env;
 	int				exit_flag;
+    int             number_of_prompts;
 	int				num_pipes;
     int             **num_pipes_fd;
 	t_env           *env;

@@ -22,12 +22,11 @@
 
 # define EX_OK EXIT_SUCCESS
 # define EX_KO EXIT_FAILURE
-# define INV_ARGC 2
 
+# define INV_ARGC 2
 
 #define HEREDOC_PIPE_ERROR 1
 #define HEREDOC_FORK_ERROR 2
-#define HEREDOC_EXIT_OK 0
 #define HEREDOC_EXIT_INTERRUPTED 130
 
 # define PROMPT "minishell> "

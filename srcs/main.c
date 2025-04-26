@@ -41,10 +41,11 @@ static void shell_loop(t_shell *shell)
 		if (prompt[0] != '\0')
 			add_history(prompt);
         shell->input = prompt;
+        (shell->number_of_prompts)++;
 		tokenizer(shell, prompt);
         if (!(check_syntax(shell->token) && are_quotes_closed(shell->token)))
             continue;
-        shell->cmd = parser(shell);
+        parser(shell);
         shell->num_pipes = count_pipes(shell->cmd);
         print_cmd_list(shell->cmd); // ! Will be removed later
         execution(shell);
@@ -71,6 +72,7 @@ static void init_shell(t_shell *shell, char **envp) // ? Check if this is needed
 {
 	shell->input = NULL;
 	shell->exit_flag = 0;
+    shell->number_of_prompts = 0;
 	shell->num_pipes = 0;
 	shell->og_env = envp;
 	init_env(shell, envp);

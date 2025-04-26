@@ -1,9 +1,10 @@
 #include "minishell.h"
 #include "../libft/libft.h"
 
+static void	eof_msg(t_shell *shell, char *delimiter);
 static int setup_heredoc(t_shell *shell, t_dir *redir);
-static void handle_heredoc_child(t_dir *redir);
-static int	wait_for_child(pid_t pid);
+static void handle_heredoc_child(t_shell *shell, t_dir *redir);
+static int wait_for_heredoc_child(pid_t pid);
 
 int process_heredocs(t_shell *shell)
 {
@@ -20,14 +21,14 @@ int process_heredocs(t_shell *shell)
             if (redir->type == DIR_HEREDOC)
             {
                 result = setup_heredoc(shell, redir);
-                if (result != HEREDOC_EXIT_OK)
+                if (result != EX_OK)
                     return (result); // error or interrupt
             }
             redir = redir->next;
         }
         cmd = cmd->next;
     }
-    return (HEREDOC_EXIT_OK);
+    return (EX_OK);
 }
 
 static int setup_heredoc(t_shell *shell, t_dir *redir)
@@ -36,22 +37,22 @@ static int setup_heredoc(t_shell *shell, t_dir *redir)
 
     if (pipe(redir->heredoc_fd) == -1)
     {
-        shut_program(shell, "Pipe error in setup_heredoc()", EXIT_FAILURE);
+        shut_program(shell, true, EXIT_FAILURE);
         return (HEREDOC_PIPE_ERROR); // * Cannot be reached
     }
     pid = fork();
     if (pid < 0)
     {
-        shut_program(shell, "Fork error in setup_heredoc()", HEREDOC_FORK_ERROR);
+        shut_program(shell, true, HEREDOC_FORK_ERROR);
         return (HEREDOC_FORK_ERROR); // * Cannot be reached
     }
     else if (pid == 0)
-        handle_heredoc_child(redir);
+        handle_heredoc_child(shell, redir);
     close(redir->heredoc_fd[1]);
     return (wait_for_child(pid)); // exit code or (128+sig)
 }
 
-static void handle_heredoc_child(t_dir *redir)
+static void handle_heredoc_child(t_shell *shell, t_dir *redir)
 {
     char    *line;
 
@@ -72,11 +73,13 @@ static void handle_heredoc_child(t_dir *redir)
     }
     close(redir->heredoc_fd[1]);
     if (!line)
-        exit(EX_OK); // Ctrl+D treated as success
-    exit(EX_OK);    // Delimiter matched
+    {
+        eof_msg(NULL, redir->filename);
+    }
+    shut_program(shell, false, EX_OK);    // Delimiter matched, also Ctrl+D treated as success
 }
 
-static int wait_for_child(pid_t pid)
+static int wait_for_heredoc_child(pid_t pid)
 {
     int status;
     int signal_num;
@@ -96,4 +99,14 @@ static int wait_for_child(pid_t pid)
     }
     return (exit_code); // Undefined behavior, should not happen!
 }
+
+static void	eof_msg(t_shell *shell, char *delimiter)
+{
+	ft_putstr_fd("warning: here-document at line ", 2);
+	ft_putnbr_fd((int)shell->number_of_prompts, 2);
+	ft_putstr_fd(" delimited by end-of-file (wanted `", 2);
+	ft_putstr_fd(delimiter, 2);
+	ft_putstr_fd("')\n", 2);
+}
+
 
