@@ -1,10 +1,12 @@
 #include "minishell.h"
 #include "../libft/libft.h"
 
-void	shut_program(t_shell *shell, char *msg, int exit_code)
+void	shut_program(t_shell *shell, bool need_msg, int exit_code)
 {
-    if (msg)
-        ft_putendl_fd(msg, STDERR_FILENO);
+    if (need_msg)
+    {
+        perror("minishell");
+    }
     if (!shell)
         return ;
     free_shell(shell);
