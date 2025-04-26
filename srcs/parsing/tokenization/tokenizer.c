@@ -21,7 +21,7 @@ void	*tokenizer(t_shell *shell, char *input)
         else
 			get_combined_token(shell, input, &i, &(shell->token));
 	}
-    update_token_type(&(shell->token));
+    update_token_type(shell->token);
     // print_tokens(tokens); // ! Will be removed later
     // printf("==========================\n");
 }

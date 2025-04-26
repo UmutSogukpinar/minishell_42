@@ -104,7 +104,6 @@ char    *get_env_value(t_env *env, char *key);
 void	execution(t_shell *shell);
 
 void	child_process(t_shell *shell, t_cmd *cmd, int i);
-void	setup_child(t_cmd *cmd, t_shell *shell, int i);
 
 int     process_heredocs(t_shell *shell);
 
