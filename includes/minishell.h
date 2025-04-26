@@ -99,6 +99,14 @@ void	add_env_node(t_env **env_list, t_env *new_node);
 t_env	*find_env_node(t_env *env, char *key);
 char    *get_env_value(t_env *env, char *key);
 
+
+// * =======================================================>>>>> Expansion utils
+
+char	*load_var_value(t_shell *shell, char *name);
+int     measure_len(t_shell *shell, char *s);
+char	*parse_var_name(t_shell *shell, char *s, int *i);
+
+
 // * =======================================================>>>>> Execution utils
 
 void	execution(t_shell *shell);
