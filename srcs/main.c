@@ -10,6 +10,8 @@ int	main(int argc, char **argv, char **envp)
 {
 	t_shell	*shell;
 
+    // TODO: Add signal handling
+
 	(void)argv;
 	if (argc != 1) // TODO: Add invalid number of arguments error code (2)
 		shut_program(NULL, "Invalid number of arguments", INV_ARGC);

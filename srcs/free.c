@@ -8,7 +8,10 @@ void	shut_program(t_shell *shell, bool need_msg, int exit_code)
         perror("minishell");
     }
     if (!shell)
+    {
+        clear_history();
         return ;
+    }
     free_shell(shell);
     exit(exit_code);
 }
