@@ -72,17 +72,18 @@ void	advance_token(t_shell *shell);
 void	*tokenizer(t_shell *shell, char *input);
 
 // * =======================================================>>>>> Syntax checker
+
 bool	check_syntax(t_token *tokens);
 bool	are_quotes_closed(t_token *tokens);
 
 
 // * =======================================================>>>>> Parser utils
 
-t_cmd *parser(t_shell *shell);
+void	parser(t_shell *shell);
 void	parse_redirection(t_shell *shell, t_cmd *cmd);
 
 t_cmd	*new_cmd_node(t_shell *shell);
-int get_len_cmd_args(t_cmd *cmd);
+int     get_len_cmd_args(t_cmd *cmd);
 void	free_cmd_list(t_cmd *head);
 void	print_cmd_list(t_cmd *head); // ! Will be removed later
 

@@ -1,9 +1,5 @@
 #include "minishell.h"
-#include <fcntl.h>
-#include <stdlib.h>
-#include <unistd.h>
 
-static t_token  *get_segment(t_token **tokens);
 static t_token  *collect_args_list(t_shell *shell);
 
 int get_len_cmd_args(t_cmd *cmd)
@@ -19,50 +15,32 @@ int get_len_cmd_args(t_cmd *cmd)
     return (len);
 }
 
-
-t_cmd   *parser(t_shell *shell)
+void	parser(t_shell *shell)
 {
-    t_cmd *head;
     t_cmd *tail;
 
-    head = new_cmd_node(shell);
-    tail = head;
+    shell->cmd = new_cmd_node(shell);
+    tail = shell->cmd;
     while (shell->token)
     {
-        while (shell->token && is_redirection_type(shell->token->type))
-            parse_redirection(shell, tail);
-        tail->args = collect_args_list(shell);
-        while (shell->token && is_redirection_type(shell->token->type))
-            parse_redirection(shell, tail);
+        while (shell->token && shell->token->type != PIPE)
+        {
+            if (is_redirection_type(shell->token->type))
+                parse_redirection(shell, tail);
+            else if (shell->token->type == WORD)
+                tail->args = collect_args_list(shell);
+            else
+                break ;
+        }
         if (shell->token && shell->token->type == PIPE)
         {
             advance_token(shell);
             tail->next = new_cmd_node(shell);
             tail = tail->next;
-            continue;
         }
-        break;
+        else
+            break ;
     }
-    return (head);
-}
-
-static t_token  *get_segment(t_token **tokens)
-{
-    t_token *start;
-    t_token *end;
-
-    start = *tokens;
-    end = start;
-    while (end && end->type != PIPE)
-        end = end->next;
-    if (!end)
-        *tokens = NULL;
-    else
-    {
-        *tokens = end->next;
-        end->next = NULL;
-    }
-    return (start);
 }
 
 static t_token  *collect_args_list(t_shell *shell)

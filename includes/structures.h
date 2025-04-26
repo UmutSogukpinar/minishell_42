@@ -15,8 +15,6 @@ typedef enum	e_token_type
     REDIRECT_OUT,	// '>'
     HEREDOC,		// '<<'
     APPEND,			// '>>'
-    DQUOTE,			// Double quote
-	SQUOTE,			// Single quote
 	NIL				// NULL (default)
 
 }				t_token_type;
@@ -73,7 +71,7 @@ typedef struct s_cmd
     int             in_fd;
     int             out_fd;
 
-    t_dir           *redir_list;    // redirection stack
+    t_dir           *redir_list;    // redirection queue
 
     struct s_cmd    *next;
 }               t_cmd;

@@ -32,10 +32,6 @@ void	update_token_type(t_token *tokens)
 				tokens->type = HEREDOC;
 			else if (are_strs_equal(tokens->value, ">>"))
 				tokens->type = APPEND;
-			else if (are_strs_equal(tokens->value, "\""))
-				tokens->type = DQUOTE;
-			else if (are_strs_equal(tokens->value, "'"))
-				tokens->type = SQUOTE;
 			else if (is_invalid_operator(tokens->value))
 				tokens->type = INV_OPERATOR;
 			else

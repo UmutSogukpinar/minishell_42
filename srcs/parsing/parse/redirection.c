@@ -19,7 +19,7 @@ void    parse_redirection(t_shell *shell, t_cmd *cmd)
     if (!redir)
     {
         free(file);
-        shut_program(shell, "Alloc error in parse_redirection", EX_KO);
+        shut_program(shell, true , EX_KO);
     }
     add_redir_node(&cmd->redir_list, redir);
 }
@@ -34,7 +34,8 @@ static t_redir_type    get_redir_type(t_shell *shell, t_token *token)
         return (DIR_APPEND);
     if (token->type == HEREDOC)
         return (DIR_HEREDOC);
-    shut_program(shell, "Unknown redirection type", EX_KO);
+    ft_putendl_fd("minishell: Invalid redirection type", STDERR_FILENO);
+    shut_program(shell, false, EX_KO);
     return (DIR_IN); // Unreachable, for norm compliance
 }
 
@@ -46,11 +47,11 @@ static char    *get_filename(t_shell *shell)
     if (!shell->token || shell->token->type != WORD)
     {
         ft_putendl_fd("minishell: Expected filename after redir", STDERR_FILENO);
-        shut_program(shell, "Invalid redirection", EX_KO);
+        shut_program(shell, false, EX_KO);
     }
     file = ft_strdup(shell->token->value);
     if (!file)
-        shut_program(shell, "Allocation failed for filename", EX_KO);
+        shut_program(shell, true, EX_KO);
     advance_token(shell);
     return (file);
 }

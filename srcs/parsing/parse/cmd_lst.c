@@ -7,7 +7,7 @@ t_cmd	*new_cmd_node(t_shell *shell)
 
 	cmd = ft_calloc(1, sizeof(t_cmd));
 	if (!cmd)
-		shut_program(shell, "Alloc error on new_cmd_node()", EX_KO);
+		shut_program(shell, true, EX_KO);
     // ? Check is this necessary
 	cmd->in_fd = STDIN_FILENO;
 	cmd->out_fd = STDOUT_FILENO;
