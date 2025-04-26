@@ -56,5 +56,31 @@ static char    *get_filename(t_shell *shell)
     return (file);
 }
 
+bool	has_output_redirection_via_list(t_cmd *cmd)
+{
+	t_dir	*redir;
 
+	redir = cmd->redir_list;
+	while (redir)
+	{
+		if (redir->type == DIR_OUT || redir->type == DIR_APPEND)
+			return (true);
+		redir = redir->next;
+	}
+	return (false);
+}
+
+bool	has_input_redirection_via_list(t_cmd *cmd)
+{
+	t_dir	*redir;
+
+	redir = cmd->redir_list;
+	while (redir)
+	{
+		if (redir->type == DIR_IN || redir->type == DIR_HEREDOC)
+			return (true);
+		redir = redir->next;
+	}
+	return (false);
+}
 

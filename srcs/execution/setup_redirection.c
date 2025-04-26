@@ -7,7 +7,7 @@ static void	handle_heredoc_redir(t_cmd *cmd, t_dir *redir);
 
 bool	setup_redirections_with_pipe(t_shell *shell, t_cmd *cmd, int i)
 {
-	if (!handle_redirections(shell, cmd))
+	if (!handle_redirections(shell, cmd)) // ? Perhaps addition exit_flag(exit code)
 		return (false);
 	if (cmd->in_fd == STDIN_FILENO && i > 0)
 		cmd->in_fd = shell->num_pipes_fd[i - 1][0];

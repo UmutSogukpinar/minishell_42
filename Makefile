@@ -29,7 +29,6 @@ SRCS			=	$(SRC_DIR)/main.c				\
 					$(EXEC_DIR)/execution.c			\
 					$(EXEC_DIR)/exec_builtin.c		\
 					$(EXEC_DIR)/child.c				\
-					$(EXEC_DIR)/child_setup.c		\
 					$(EXEC_DIR)/heredoc.c			\
 					$(EXEC_DIR)/path.c				\
 					$(EXEC_DIR)/pipe.c				\

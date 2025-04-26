@@ -79,7 +79,6 @@ bool	are_quotes_closed(t_token *tokens);
 // * =======================================================>>>>> Parser utils
 
 void	parser(t_shell *shell);
-void	parse_redirection(t_shell *shell, t_cmd *cmd);
 
 t_cmd	*new_cmd_node(t_shell *shell);
 int     get_len_cmd_args(t_cmd *cmd);
@@ -115,9 +114,15 @@ int     count_pipes(t_cmd *cmd);
 void	close_unused_pipes(t_shell *shell, int current);
 
 void    print_open_error(char *filename);
-bool	setup_redirections_with_pipe(t_shell *shell, t_cmd *cmd, int i);
 
 char	**modify_args(t_cmd *cmd);
+
+// * =======================================================>>>>> Redirection utils
+
+void	parse_redirection(t_shell *shell, t_cmd *cmd);
+bool	setup_redirections_with_pipe(t_shell *shell, t_cmd *cmd, int i);
+bool	has_input_redirection_via_list(t_cmd *cmd);
+bool	has_output_redirection_via_list(t_cmd *cmd);
 
 // * =======================================================>>>>> Builtin utils
 
