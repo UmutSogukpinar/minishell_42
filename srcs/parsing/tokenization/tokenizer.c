@@ -6,12 +6,10 @@ static char	*get_default_part(t_shell *shell, char *input, int *i, char **combin
 static void	get_combined_token(t_shell *shell, char *input, int *i, t_token **tokens);
 static void	get_special_token(t_shell *shell, t_token **tokens, char *input, int *i);
 
-t_token	*tokenizer(t_shell *shell, char *input)
+void	*tokenizer(t_shell *shell, char *input)
 {
-	t_token	*tokens;
 	int		i;
 
-	tokens = NULL;
 	i = 0;
 	while (input[i])
 	{
@@ -19,14 +17,13 @@ t_token	*tokenizer(t_shell *shell, char *input)
 		if (input[i] == '\0')
 			break ;
         if (is_operator(input[i]))
-            get_special_token(shell, &tokens, input, &i);
+            get_special_token(shell, &(shell->token), input, &i);
         else
-			get_combined_token(shell, input, &i, &tokens);
+			get_combined_token(shell, input, &i, &(shell->token));
 	}
-    update_token_type(tokens);
-    print_tokens(tokens); // ! Will be removed later
-    printf("==========================\n");
-	return (tokens);
+    update_token_type(&(shell->token));
+    // print_tokens(tokens); // ! Will be removed later
+    // printf("==========================\n");
 }
 
 static void	get_combined_token(t_shell *shell, char *input, int *i, t_token **tokens)
@@ -36,7 +33,7 @@ static void	get_combined_token(t_shell *shell, char *input, int *i, t_token **to
 
 	combined = ft_strdup("");
 	if (!combined)
-        shut_program(shell, "Memory allocation failed in get_combined_token()", 1);
+        shut_program(shell, true, EX_KO);
 	while (input[*i] && !ft_isspace(input[*i]) && !is_operator(input[*i]))
 	{
 		if (is_quote(input[*i]))
@@ -45,7 +42,7 @@ static void	get_combined_token(t_shell *shell, char *input, int *i, t_token **to
 			part = get_default_part(shell, input, i, &combined);
 		combined = ultimate_join(combined, part);
 		if (!combined)
-            shut_program(shell, "Memory allocation failed in get_combined_token()", 1);
+            shut_program(shell, true, EX_KO);
 	}
 	add_token(shell, tokens, combined);
 	free(combined);
@@ -67,7 +64,7 @@ static char	*get_quote_part(t_shell *shell, char *input, int *i, char **combined
 		if (!new_part)
 		{
 			free(*combined);
-			shut_program(shell, "Memory allocation failed in get_quote_part()", 1);
+			shut_program(shell, true, EX_KO);
 		}
 		return (new_part);
 	}
@@ -75,7 +72,7 @@ static char	*get_quote_part(t_shell *shell, char *input, int *i, char **combined
 	if (!new_part)
 	{
 		free(*combined);
-        shut_program(shell, "Memory allocation failed in get_quote_part()", 1);
+        shut_program(shell, true, EX_KO);
 	}
 	return (new_part);
 }
@@ -86,7 +83,8 @@ static char	*get_default_part(t_shell *shell, char *input, int *i, char **combin
 	char	*new_part;
 
 	start = *i;
-	while (input[*i] && !ft_isspace(input[*i]) && !is_operator(input[*i]))
+	while (input[*i] && !ft_isspace(input[*i]) 
+        && !is_operator(input[*i]) && !is_quote(input[*i]))
     {
 		(*i)++;
     }
@@ -94,7 +92,7 @@ static char	*get_default_part(t_shell *shell, char *input, int *i, char **combin
 	if (!new_part)
 	{
 		free(*combined);
-		shut_program(shell, "Memory allocation failed in get_default_part()", 1);
+		shut_program(shell, true, EX_KO);
 	}
 	return (new_part);
 }
@@ -113,7 +111,7 @@ static void	get_special_token(t_shell *shell, t_token **tokens, char *input, int
 	}
 	else
 		(*i)++;
-	add_token(shell, tokens, operator);
+	add_token(shell, tokens, ft_strdup(operator));
 }
 
 

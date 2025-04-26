@@ -69,7 +69,7 @@ void    free_tokens(t_token *tokens);
 void	add_token(t_shell *shell, t_token **tokens, char *value);
 void	advance_token(t_shell *shell);
 
-t_token	*tokenizer(t_shell *shell, char *input);
+void	*tokenizer(t_shell *shell, char *input);
 
 // * =======================================================>>>>> Syntax checker
 bool	check_syntax(t_token *tokens);

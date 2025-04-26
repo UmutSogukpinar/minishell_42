@@ -41,7 +41,7 @@ static void shell_loop(t_shell *shell)
 		if (prompt[0] != '\0')
 			add_history(prompt);
         shell->input = prompt;
-		shell->token = tokenizer(shell, prompt);
+		tokenizer(shell, prompt);
         if (!(check_syntax(shell->token) && are_quotes_closed(shell->token)))
             continue;
         shell->cmd = parser(shell);
