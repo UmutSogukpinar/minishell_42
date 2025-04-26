@@ -1,6 +1,6 @@
 #include "minishell.h"
+#include "../libft/libft.h"
 
-static char	**modify_args(t_cmd *cmd);
 static int run_builtin(t_shell *shell, t_cmd *cmd);
 
 bool	is_builtin(char *cmd)
@@ -34,7 +34,7 @@ int	execute_builtin(t_shell *shell, t_cmd *cmd)
 		dup2(cmd->out_fd, STDOUT_FILENO);
 		close(cmd->out_fd);
 	}
-	exit_status = run_builtin(cmd, shell);
+	exit_status = run_builtin(shell, cmd);
 	dup2(original_stdin, STDIN_FILENO);
 	dup2(original_stdout, STDOUT_FILENO);
 	close(original_stdin);
@@ -42,38 +42,43 @@ int	execute_builtin(t_shell *shell, t_cmd *cmd)
     return (exit_status);
 }
 
-static int run_builtin(t_shell *shell, t_cmd *cmd)
+static int	run_builtin(t_shell *shell, t_cmd *cmd)
 {
-    char **args;
+	char	**args;
+	int		status;
 
-    args = modify_args(cmd);
-    if (!args)
-        return (1);
-    if (are_strs_equal(cmd->args->value, "echo"))
-        return (exec_echo(shell, cmd));
-    else if (are_strs_equal(cmd->args->value, "cd"))
-        return (ft_cd(shell, shell->env));
-    else if (are_strs_equal(cmd->args->value, "pwd"))
-        return (exec_pwd(shell, cmd));
-    else if (are_strs_equal(cmd->args->value, "export"))
-        return (exec_export(shell, cmd));
-    else if (are_strs_equal(cmd->args->value, "unset"))
-        return (exec_unset(shell, cmd));
-    else if (are_strs_equal(cmd->args->value, "env"))
-        return (exec_env(shell, cmd));
-    else if (are_strs_equal(cmd->args->value, "exit"))
-        return (exec_exit(shell, cmd));
-    return (1);
+	args = modify_args(cmd);
+	if (!args)
+		return (1);
+	if (are_strs_equal(cmd->args->value, "echo"))
+		status = ft_echo(args);
+	else if (are_strs_equal(cmd->args->value, "cd"))
+		status = ft_cd(args, shell->env);
+	else if (are_strs_equal(cmd->args->value, "pwd"))
+		status = ft_pwd(shell);
+	else if (are_strs_equal(cmd->args->value, "export"))
+		status = ft_export(shell, args);
+	else if (are_strs_equal(cmd->args->value, "unset"))
+		status = ft_unset(shell, args);
+	else if (are_strs_equal(cmd->args->value, "env"))
+		status = ft_env(shell, false);
+	else if (are_strs_equal(cmd->args->value, "exit"))
+		status = ft_exit(shell, args);
+	else
+		status = 1;
+	ft_free_tab(args);
+	return (status);
 }
 
-static char	**modify_args(t_cmd *cmd)
+
+char	**modify_args(t_cmd *cmd)
 {
 	char	**args;
 	t_token	*tmp;
 	int		i;
 	int		count;
 
-	count = count_args(cmd);
+	count = get_len_cmd_args(cmd);
 	args = ft_calloc(count + 1, sizeof(char *));
 	if (!args)
 		return (NULL);
@@ -84,7 +89,7 @@ static char	**modify_args(t_cmd *cmd)
 		args[i] = ft_strdup(tmp->value);
 		if (!args[i])
 		{
-			free_str_array(args); // helper to free allocated strings
+			ft_free_tab(args); // helper to free allocated strings
 			return (NULL);
 		}
 		tmp = tmp->next;

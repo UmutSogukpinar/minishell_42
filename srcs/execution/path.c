@@ -6,7 +6,7 @@ static char	**get_paths_array(t_shell *shell);
 static char	*check_direct_path(char *cmd, int *exit_code);
 static char	*search_command_in_path(t_shell *shell, char *cmd, int *exit_code);
 
-char	*get_path(t_shell *shell, char *cmd, int *exit_code)
+char	*get_cmd_path(t_shell *shell, char *cmd, int *exit_code)
 {
 	if (ft_strchr(cmd, '/'))
 		return (check_direct_path(cmd, exit_code));
@@ -96,4 +96,3 @@ static char	*check_single_path(t_shell *shell, char *dir, char *cmd, int *exit_c
 	free(full_path);
 	return (NULL);
 }
-

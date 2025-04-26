@@ -1,4 +1,5 @@
 #include "minishell.h"
+#include "../libft/libft.h"
 
 static int setup_heredoc(t_shell *shell, t_dir *redir);
 static void handle_heredoc_child(t_dir *redir);

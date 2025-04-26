@@ -11,16 +11,23 @@ void	execution(t_shell *shell)
 	cmd = shell->cmd;
 	shell->num_pipes_fd = setup_pipes(shell, shell->num_pipes);
 	i = 0;
-    process_heredocs(shell);
-	while (cmd)
-	{
-		setup_redirections_with_pipe(cmd, shell->num_pipes_fd, i, shell->num_pipes);
-		execute_cmd(shell, cmd, i);
-		if (cmd->next)
-			close(shell->num_pipes_fd[i][1]);
-		cmd = cmd->next;
-		i++;
-	}
+    shell->exit_flag = process_heredocs(shell); // ! Check exit code + signal handling
+    if (shell->exit_flag != EX_OK)
+        return ;
+    while (cmd)
+    {
+        if (!setup_redirections_with_pipe(shell, cmd, i))
+        {
+            cmd = cmd->next;
+            i++;
+            continue;
+        }
+        execute_cmd(shell, cmd, i);
+        if (cmd->next)
+            close(shell->num_pipes_fd[i][1]);
+        cmd = cmd->next;
+        i++;
+    }
 	wait_all_children(shell);
 }
 
@@ -28,7 +35,7 @@ static void	execute_cmd(t_shell *shell, t_cmd *cmd, int i)
 {
 	pid_t	pid;
 
-	if (is_builtin(cmd->args->value) && shell->num_pipes == 0)
+	if (is_builtin(cmd->args->value))
 	{
 		shell->exit_flag = execute_builtin(shell, cmd);
 	}
@@ -38,7 +45,7 @@ static void	execute_cmd(t_shell *shell, t_cmd *cmd, int i)
         if (pid < 0)
             shut_program(shell, "Fork failed on execute_cmd()", EXIT_FAILURE);
         else if (pid == 0)
-            child_process(shell, cmd, shell->num_pipes_fd, i);
+            child_process(shell, cmd, i);
     }
 }
 
