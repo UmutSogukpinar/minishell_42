@@ -1,40 +1,49 @@
 #include "minishell.h"
+#include "../libft/libft.h"
 
-static void	free_shell(t_shell *shell)
+void	shut_program(t_shell *shell, bool need_msg, int exit_code)
 {
-	if (!shell)
+    if (need_msg)
+    {
+        perror("minishell");
+    }
+    if (!shell)
+    {
+        clear_history();
+        return ;
+    }
+    free_shell(shell);
+    exit(exit_code);
+}
+
+void    free_shell(t_shell *shell)
+{
+    if (!shell)
+        return ;
+    clear_history();
+    if (shell->input)
+        free(shell->input);
+    free_tokens(shell->token);
+    free_cmd_list(shell->cmd);
+    free_env_list(shell->env);
+    free_pipe_fd(shell->num_pipes_fd, shell->num_pipes);
+    free(shell);
+}
+
+void	ft_free_tab(char **arr)
+{
+	int	i;
+
+	if (!arr)
 		return ;
-	clear_heredoc(shell);
-	clear_token_list(shell);
-	free(shell->input);
-	free(shell->history);
-	rl_clear_history();
-	free(shell);
+	i = 0;
+	while (arr[i])
+	{
+		free(arr[i]);
+		i++;
+	}
+	free(arr);
 }
 
-void	shut_program_err(t_shell *shell)
-{
-	free_shell(shell);
-	exit(EXIT_FAILURE);
-}
 
-void	shut_program_default(t_shell *shell)
-{
-	free_shell(shell);
-	exit(EXIT_SUCCESS);
-}
 
-void	make_ready_for_next_prompt(t_shell *shell)
-{
-	if (!shell)
-		return ;
-	add_history(shell->history);
-	shell->heredoc_index = 0;
-	shell->is_interactive = C_FALSE;
-	clear_heredoc(shell);
-	clear_token_list(shell);
-	free(shell->history);
-	free(shell->input);
-	shell->history = NULL;
-	shell->input = NULL;
-}

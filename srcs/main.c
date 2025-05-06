@@ -1,50 +1,85 @@
 #include "minishell.h"
+#include "../libft/libft.h"
 
-void	shell_loop(t_shell *shell)
-{
-	char	*input;
+static void init_shell(t_shell *shell, char **envp);
+static void make_ready_for_next_prompt(t_shell *shell);
+static void shell_loop(t_shell *shell);
 
-	while (1)
-	{
-		input = readline("minishell$ ");
-		if (!input) // * Handles Ctrl + D
-		{
-			printf("exit\n");
-			shut_program_err(shell);
-		}
-		shell->input = input;
-		shell->history = ft_strdup(shell->input);
-		process_input(shell);
-	}
-	// TODO:
-	// // Display a prompt (minishell$ ).
-	// // Read user input (Parse & Tokenise).
-	// Process and execute the command.
-	// // Add the command that is run to history.
-	// // Repeat until the user exits.
-}
-
-//* purpose: initialization of main structure (t_shell)
-
-t_shell	*init_shell(void)
-{
-	t_shell	*new;
-
-	new = ft_calloc(1, sizeof(t_shell));
-	if (!new)
-		return (NULL);
-	new->is_interactive = C_FALSE;
-	return (new);
-}
-
+// * Main function
 int	main(int argc, char **argv, char **envp)
 {
 	t_shell	*shell;
 
-	shell = init_shell();
+    // TODO: Add signal handling
+
+	(void)argv;
+	if (argc != 1) // TODO: Add invalid number of arguments error code (2)
+		shut_program(NULL, "Invalid number of arguments", INV_ARGC);
+	shell = ft_calloc(1, sizeof(t_shell));
 	if (!shell)
-		return (ALLOC_ERR); // ? special message for any error maybe?
-	setup_signals();
+	{
+		perror("minishell");
+		return (EX_KO);
+	}
+	init_shell(shell, envp);
 	shell_loop(shell);
+	free_shell(shell);
 	return (0);
+}
+
+static void shell_loop(t_shell *shell)
+{
+	char *prompt;
+
+	while (1)
+	{
+        make_ready_for_next_prompt(shell); // ? Is double checking needed? ->> Probably
+		prompt = readline(PROMPT);
+		if (!prompt)
+		{
+			ft_putendl_fd("exit", STDOUT_FILENO);
+			break ;
+		}
+		if (prompt[0] != '\0')
+			add_history(prompt);
+        shell->input = prompt;
+        (shell->number_of_prompts)++;
+		tokenizer(shell, prompt);
+        if (!(check_syntax(shell->token) && are_quotes_closed(shell->token)))
+            continue;
+        parser(shell);
+        shell->num_pipes = count_pipes(shell->cmd);
+        print_cmd_list(shell->cmd); // ! Will be removed later
+        execution(shell);
+        make_ready_for_next_prompt(shell);
+	}
+}
+
+static void make_ready_for_next_prompt(t_shell *shell)
+{
+    if (shell->input)
+        free(shell->input);
+    shell->input = NULL;
+    free_tokens(shell->token);
+    shell->token = NULL;
+    free_cmd_list(shell->cmd);
+    shell->cmd = NULL;
+    free_pipe_fd(shell->num_pipes_fd, shell->num_pipes);
+    shell->num_pipes_fd = NULL;
+    shell->num_pipes = 0;
+    // TODO: Update later
+}
+
+static void init_shell(t_shell *shell, char **envp) // ? Check if this is needed
+{
+	shell->input = NULL;
+	shell->exit_flag = 0;
+    shell->number_of_prompts = 0;
+	shell->num_pipes = 0;
+	shell->og_env = envp;
+	init_env(shell, envp);
+    shell->num_pipes_fd = NULL;
+	shell->cmd = NULL;
+	shell->token = NULL;
+	// g_signal = 0; // ?  Is this supposed to be here?
 }
