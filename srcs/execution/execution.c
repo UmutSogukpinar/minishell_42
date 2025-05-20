@@ -1,112 +1,107 @@
 #include "minishell.h"
 
-static void	execute_cmd(t_shell *shell, t_cmd *cmd, int i);
-static void	wait_all_children(t_shell *shell);
-static void	close_all_pipes(t_shell *shell);
-static void	close_all_redirections(t_cmd *cmd_list);
+static pid_t	execute_cmd(t_shell *shell, t_cmd *cmd, int index);
+static pid_t	fork_and_execute(t_shell *shell, t_cmd *cmd, int index);
+static void		close_unused_pipe_ends(t_shell *shell, int index);
+static void		parent_wait(t_shell *shell, pid_t last_pid);
 
+// * Executes the command and handles the redirections and pipe setup
 void	execution(t_shell *shell)
 {
+	pid_t	last_pid;
 	t_cmd	*cmd;
 	int		i;
 
+	last_pid = -1;
 	cmd = shell->cmd;
-	shell->num_pipes_fd = setup_pipes(shell, shell->num_pipes);
 	i = 0;
-    shell->exit_flag = process_heredocs(shell); // ! Check (exit code + signal handling) out
-    if (shell->exit_flag != EX_OK)
-        return ;
-    while (cmd)
-    {
-        if (!setup_redirections_with_pipe(shell, cmd, i))
-        {
-            cmd = cmd->next;
-            i++;
-            continue;
-        }
-        execute_cmd(shell, cmd, i);
-        cmd = cmd->next;
-        i++;
-    }
-    close_all_pipes(shell);
-    close_all_redirections(shell->cmd);
-	wait_all_children(shell);
+	while (cmd)
+	{
+		if (!setup_redirections_with_pipe(shell, cmd, i))
+		{
+			last_pid = -1;
+			shell->cur_exit_flag = 1;
+			i++;
+			cmd = cmd->next;
+			continue ;
+		}
+		last_pid = execute_cmd(shell, cmd, i);
+		cmd = cmd->next;
+		i++;
+	}
+	parent_wait(shell, last_pid);
 }
 
-static void	execute_cmd(t_shell *shell, t_cmd *cmd, int i)
+// * Executes the command, either as a built-in or by forking a process
+static pid_t	execute_cmd(t_shell *shell, t_cmd *cmd, int index)
+{
+	if ((is_builtin(cmd->args) && shell->num_pipes == 0))
+	{
+		shell->cur_exit_flag = execute_builtin(shell, cmd);
+		return (-1);
+	}
+	return (fork_and_execute(shell, cmd, index));
+}
+
+// * Forks a new process and executes the command in the child process
+static pid_t	fork_and_execute(t_shell *shell, t_cmd *cmd, int index)
 {
 	pid_t	pid;
 
-	if (is_builtin(cmd->args->value))
+	pid = fork();
+	if (pid < 0)
+		shut_program(shell, true, EX_KO);
+	if (pid == 0)
 	{
-		shell->exit_flag = execute_builtin(shell, cmd);
+		handle_signals(EXEC_CMD);
+		child_process(shell, cmd, index);
 	}
-    else
-    {
-        pid = fork();
-        if (pid < 0)
-            shut_program(shell, true, EX_KO);
-        else if (pid == 0)
-            child_process(shell, cmd, i);
-    }
+	else
+	{
+		close_unused_pipe_ends(shell, index);
+	}
+	return (pid);
 }
 
-static void	wait_all_children(t_shell *shell)
+// * Closes unused pipe ends in the parent process to avoid file descriptor leaks.
+static void	close_unused_pipe_ends(t_shell *shell, int index)
 {
-	int	status;
-	int	last_exit;
+	int	**pipes;
 
-	last_exit = 0;
-	while (wait(&status) > 0)
+	pipes = shell->num_pipes_fd;
+	pipes = shell->num_pipes_fd;
+	if (index > 0 && pipes[index - 1][READ_END] >= 2)
 	{
-		if (WIFEXITED(status))
-			last_exit = WEXITSTATUS(status);
-		else if (WIFSIGNALED(status))
-			last_exit = (128 + WTERMSIG(status));
+		close(pipes[index - 1][READ_END]);
+		pipes[index - 1][READ_END] = -1;
 	}
-	shell->exit_flag = last_exit;
-}
-
-static void	close_all_pipes(t_shell *shell)
-{
-	int	i;
-
-	i = 0;
-	while (i < shell->num_pipes)
+	if (index < shell->num_pipes && pipes[index][WRITE_END] >= 0)
 	{
-		if (shell->num_pipes_fd[i][0] != -1)
-		{
-			close(shell->num_pipes_fd[i][0]);
-			shell->num_pipes_fd[i][0] = -1;
-		}
-		if (shell->num_pipes_fd[i][1] != -1)
-		{
-			close(shell->num_pipes_fd[i][1]);
-			shell->num_pipes_fd[i][1] = -1;
-		}
-		i++;
+		close(pipes[index][WRITE_END]);
+		pipes[index][WRITE_END] = -1;
 	}
 }
 
-static void	close_all_redirections(t_cmd *cmd_list)
+// * Waits for the child process to finish and handles exit status
+static void	parent_wait(t_shell *shell, pid_t last_pid)
 {
-	t_cmd	*cmd;
+	pid_t	pid;
+	int		status;
 
-	cmd = cmd_list;
-	while (cmd)
+	pid = wait(&status);
+	while (pid > 0)
 	{
-		if (has_input_redirection_via_list(cmd)
-			&& cmd->in_fd != -1 && cmd->in_fd != STDIN_FILENO)
+		if (pid == last_pid)
 		{
-			close(cmd->in_fd);
-			cmd->in_fd = -1;
+			if (WIFEXITED(status))
+				shell->cur_exit_flag = WEXITSTATUS(status);
+			else if (WIFSIGNALED(status))
+				shell->cur_exit_flag = 128 + WTERMSIG(status);
+			if (shell->cur_exit_flag == 130)
+				handle_sigint_output();
 		}
-		if (has_output_redirection_via_list(cmd)
-			&& cmd->out_fd != -1 && cmd->out_fd != STDOUT_FILENO)
-		{
-			close(cmd->out_fd);
-			cmd->out_fd = -1;
-		}
-		cmd = cmd->next;
+		pid = wait(&status);
 	}
+	close_all_pipes(shell);
+	close_redirections(shell->cmd);
 }

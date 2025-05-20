@@ -1,12 +1,12 @@
 #include "minishell.h"
-#include "../libft/libft.h"
 
 static char	*get_quote_part(t_shell *shell, char *input, int *i, char **combined);
 static char	*get_default_part(t_shell *shell, char *input, int *i, char **combined);
 static void	get_combined_token(t_shell *shell, char *input, int *i, t_token **tokens);
 static void	get_special_token(t_shell *shell, t_token **tokens, char *input, int *i);
 
-void	*tokenizer(t_shell *shell, char *input)
+// * Tokenizes the input string into a linked list of tokens
+void	tokenizer(t_shell *shell, char *input)
 {
 	int		i;
 
@@ -22,10 +22,9 @@ void	*tokenizer(t_shell *shell, char *input)
 			get_combined_token(shell, input, &i, &(shell->token));
 	}
     update_token_type(shell->token);
-    // print_tokens(tokens); // ! Will be removed later
-    // printf("==========================\n");
 }
 
+// * Combines multiple characters or quoted strings into a single token
 static void	get_combined_token(t_shell *shell, char *input, int *i, t_token **tokens)
 {
 	char	*combined;
@@ -48,6 +47,7 @@ static void	get_combined_token(t_shell *shell, char *input, int *i, t_token **to
 	free(combined);
 }
 
+// * Extracts a quoted substring from the input
 static char	*get_quote_part(t_shell *shell, char *input, int *i, char **combined)
 {
 	int		start;
@@ -77,6 +77,7 @@ static char	*get_quote_part(t_shell *shell, char *input, int *i, char **combined
 	return (new_part);
 }
 
+// * Extracts a regular unquoted substring from the input
 static char	*get_default_part(t_shell *shell, char *input, int *i, char **combined)
 {
 	int		start;
@@ -97,9 +98,11 @@ static char	*get_default_part(t_shell *shell, char *input, int *i, char **combin
 	return (new_part);
 }
 
+// * Extracts special operator tokens (e.g., ||, &&, >>)
 static void	get_special_token(t_shell *shell, t_token **tokens, char *input, int *i)
 {
 	char	operator[3];
+	char	*opt_value;
 
 	ft_bzero(operator, 3);
 	operator[0] = input[*i];
@@ -110,10 +113,12 @@ static void	get_special_token(t_shell *shell, t_token **tokens, char *input, int
 		(*i) += 2;
 	}
 	else
+	{
 		(*i)++;
-	add_token(shell, tokens, ft_strdup(operator));
+	}
+	opt_value = ft_strdup(operator);
+	if (!opt_value)
+		shut_program(shell, true, EX_KO);
+	add_token(shell, tokens, opt_value);
+	free(opt_value);
 }
-
-
-
-
