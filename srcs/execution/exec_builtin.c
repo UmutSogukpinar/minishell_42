@@ -50,6 +50,7 @@ int	execute_builtin(t_shell *shell, t_cmd *cmd)
 	return (exit_status);
 }
 
+// * Initialize std fd's backups
 static void	init_backups(t_shell *shell)
 {
 	shell->backup_stdin = dup(STDIN_FILENO);
