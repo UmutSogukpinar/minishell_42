@@ -2,6 +2,7 @@
 
 static bool	is_numeric(const char *str);
 static void	numeric_exit(t_shell *shell, char **args, int exit_code);
+static void	non_numeric_exit(t_shell *shell, char **args);
 static void custom_exit_msg(char *flag);
 
 // * Handles the exit command by checking arguments and shutting down the program
@@ -13,14 +14,11 @@ int	ft_exit(t_shell *shell, char **args)
 	if (!args[1])
 	{
 		ft_free_tab(args);
-        shut_program(shell, false, shell->exit_flag);
+		close(shell->backup_stdin);
+		close(shell->backup_stdout);
+		shut_program(shell, false, shell->exit_flag);
 	}
-	if (!is_numeric(args[1]))
-	{
-		custom_exit_msg(args[1]);
-		ft_free_tab(args);
-        shut_program(shell, false, 2);
-	}
+	non_numeric_exit(shell, args);
 	if (args[2])
 	{
 		ft_putendl_fd("minishell: exit: too many arguments", STDERR_FILENO);
@@ -32,13 +30,28 @@ int	ft_exit(t_shell *shell, char **args)
 	return (0);
 }
 
+// Handles non-numeric exit: show error message, frees args, and exits shell
+static void	non_numeric_exit(t_shell *shell, char **args)
+{
+	if (!is_numeric(args[1]))
+	{
+		custom_exit_msg(args[1]);
+		ft_free_tab(args);
+		close(shell->backup_stdin);
+		close(shell->backup_stdout);
+		shut_program(shell, false, 2);
+	}
+}
+
 // Handles numeric exit: adjusts negative exit code, frees args, and exits shell
 static void	numeric_exit(t_shell *shell, char **args, int exit_code)
 {
 	if (exit_code < 0)
 		exit_code += 256;
 	ft_free_tab(args);
-    shut_program(shell, false, exit_code);
+	close(shell->backup_stdin);
+	close(shell->backup_stdout);
+	shut_program(shell, false, exit_code);
 }
 
 // * Prints a custom error message when the exit argument is invalid

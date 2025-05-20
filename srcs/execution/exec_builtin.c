@@ -1,6 +1,7 @@
 #include "minishell.h"
 
 static int run_builtin(t_shell *shell, t_cmd *cmd);
+static void	init_backups(t_shell *shell);
 
 // * Checks if the given token list represents a built-in command
 bool	is_builtin(t_token *token_lst)
@@ -26,12 +27,9 @@ bool	is_builtin(t_token *token_lst)
 // * Executes the built-in command by modifying file descriptors and calling the appropriate function
 int	execute_builtin(t_shell *shell, t_cmd *cmd)
 {
-	int	original_stdin;
-	int	original_stdout;
-    int exit_status;
+	int	exit_status;
 
-	original_stdin = dup(STDIN_FILENO);
-	original_stdout = dup(STDOUT_FILENO);
+	init_backups(shell);
 	if (cmd->in_fd != STDIN_FILENO)
 	{
 		dup2(cmd->in_fd, STDIN_FILENO);
@@ -45,11 +43,26 @@ int	execute_builtin(t_shell *shell, t_cmd *cmd)
 		cmd->out_fd = -1;
 	}
 	exit_status = run_builtin(shell, cmd);
-	dup2(original_stdin, STDIN_FILENO);
-	dup2(original_stdout, STDOUT_FILENO);
-	close(original_stdin);
-	close(original_stdout);
-    return (exit_status);
+	dup2(shell->backup_stdin, STDIN_FILENO);
+	dup2(shell->backup_stdout, STDOUT_FILENO);
+	close(shell->backup_stdin);
+	close(shell->backup_stdout);
+	return (exit_status);
+}
+
+static void	init_backups(t_shell *shell)
+{
+	shell->backup_stdin = dup(STDIN_FILENO);
+	if (shell->backup_stdin == -1)
+	{
+		shut_program(shell, true, EX_KO);
+	}
+	shell->backup_stdout = dup(STDOUT_FILENO);
+	if (shell->backup_stdout == -1)
+	{
+		close(shell->backup_stdin);
+		shut_program(shell, true, EX_KO);
+	}
 }
 
 // * Runs the actual built-in command and returns its exit status

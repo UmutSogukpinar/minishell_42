@@ -104,6 +104,8 @@ typedef struct s_shell
 	int					number_of_prompts;
 	int					num_pipes;
 	int					**num_pipes_fd;
+	int					backup_stdout;
+	int					backup_stdin;
 	t_env				*env;
 	t_cmd				*cmd;
 	t_token				*token;
